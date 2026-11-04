@@ -1,0 +1,109 @@
+{
+  "nota_llm": "D",
+  "resumen": "Es una intención, no una spec: no hay criterios observables ni reglas.",
+  "vacios_graves": [
+    "T1: no hay ningún resultado observable ('que suene amable' no se puede probar)",
+    "P4: no hay reglas que digan qué frases cuentan como pedir un humano",
+    "P3: no dice qué queda fuera (¿transferencia real? ¿tickets?)"
+  ],
+  "criterios": [
+    {
+      "id": "P1",
+      "estado": "Parcial",
+      "evidencia": "Párrafo único: 'para que los clientes no se frustren'",
+      "correccion": "Nombrar usuario y situación",
+      "supuesto": ""
+    },
+    {
+      "id": "P2",
+      "estado": "Parcial",
+      "evidencia": "'pasar con un humano cuando lo pidan'",
+      "correccion": "Listar capacidades concretas de esta ronda",
+      "supuesto": ""
+    },
+    {
+      "id": "P3",
+      "estado": "Falta",
+      "evidencia": "",
+      "correccion": "Agregar sección Fuera de alcance",
+      "supuesto": ""
+    },
+    {
+      "id": "P4",
+      "estado": "Falta",
+      "evidencia": "",
+      "correccion": "Escribir reglas BR-XXX con las frases que disparan el escalamiento",
+      "supuesto": ""
+    },
+    {
+      "id": "P5",
+      "estado": "Falta",
+      "evidencia": "",
+      "correccion": "",
+      "supuesto": ""
+    },
+    {
+      "id": "P6",
+      "estado": "Falta",
+      "evidencia": "",
+      "correccion": "",
+      "supuesto": ""
+    },
+    {
+      "id": "T1",
+      "estado": "Falta",
+      "evidencia": "",
+      "correccion": "Criterios con entrada y salida esperada",
+      "supuesto": ""
+    },
+    {
+      "id": "T2",
+      "estado": "Falta",
+      "evidencia": "",
+      "correccion": "Tabla de casos con bordes (saludo + pedido)",
+      "supuesto": ""
+    },
+    {
+      "id": "T3",
+      "estado": "Falta",
+      "evidencia": "",
+      "correccion": "",
+      "supuesto": ""
+    },
+    {
+      "id": "T4",
+      "estado": "N/A",
+      "evidencia": "No se declaró TDD",
+      "correccion": "",
+      "supuesto": ""
+    },
+    {
+      "id": "D1",
+      "estado": "Falta",
+      "evidencia": "",
+      "correccion": "Indicar componente que cambia",
+      "supuesto": ""
+    },
+    {
+      "id": "D2",
+      "estado": "Falta",
+      "evidencia": "",
+      "correccion": "",
+      "supuesto": ""
+    },
+    {
+      "id": "D3",
+      "estado": "N/A",
+      "evidencia": "",
+      "correccion": "",
+      "supuesto": ""
+    },
+    {
+      "id": "D4",
+      "estado": "Falta",
+      "evidencia": "",
+      "correccion": "",
+      "supuesto": ""
+    }
+  ]
+}
