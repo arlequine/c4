@@ -65,8 +65,8 @@ export function generateResponse(history: Message[], userMessage: string): strin
     return '¡Hola! Soy el asistente virtual. ¿En qué puedo ayudarte hoy?';
   }
 
-  // Escalamiento a un asesor humano (ESC-01)
-  if (/(hablar|comunicar(me)?|pasar(me)?)\s+con\s+(una?\s+)?(persona|humano|asesor|agente real)|(asesor|agente) humano/i.test(userMessage)) {
+  // Escalamiento a un asesor humano (TASK-001 · BR-ESC-01..04, TASK-002 · BR-ESC-05..06)
+  if (/(hablar|comunicar\w*|pas\w*)\s+con\s+(una?\s+)?(persona|humano|asesor|agente real)|(asesor|agente) humano|agente real/i.test(userMessage)) {
     const saludo = name ? `Entendido, ${name}. ` : '';
     return `${saludo}Te comunico con un asesor humano. Nuestro horario de atención es de lunes a viernes de 8:00 AM a 6:00 PM.`;
   }

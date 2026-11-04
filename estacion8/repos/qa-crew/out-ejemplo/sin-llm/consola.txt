@@ -1,0 +1,28 @@
+[qa-crew 13:45:35] 1 · Revisor de spec · anthropic/claude-opus-5-5 · specs/escalamiento.md
+[qa-crew 13:45:35]    (sin LLM: referencia/revision.json)
+[qa-crew 13:45:35]    ola-1 · Detección de la intención: nota A (LLM: A) → pasa
+[qa-crew 13:45:35]    ola-2 · Experiencia en el chat: nota B (LLM: B) → pasa con supuestos
+[qa-crew 13:45:35]    ola-3 · Transferencia real a un asesor: nota C (LLM: C) → vuelve a diseño
+[qa-crew 13:45:35] 2 · Planificador · anthropic/claude-opus-5-5 · olas ola-1 (A), ola-2 (B)
+[qa-crew 13:45:35]    (sin LLM: referencia/plan/)
+[qa-crew 13:45:35]    paquete válido: 2 tareas → TASK-001, TASK-002
+[qa-crew 13:45:35] 3 · Diseñador de pruebas · anthropic/claude-haiku-5-5
+[qa-crew 13:45:35]    (sin LLM: referencia/pruebas/)
+[qa-crew 13:45:35]    CA-01 → TDD · demo-app/__tests__/escalamiento.test.ts
+[qa-crew 13:45:35]    CA-02 → TDD · demo-app/__tests__/escalamiento.test.ts
+[qa-crew 13:45:35]    CA-03 → TDD · demo-app/__tests__/escalamiento.test.ts
+[qa-crew 13:45:35]    CA-04 → TDD · demo-app/__tests__/escalamiento.test.ts
+[qa-crew 13:45:35]    CA-05 → BDD · tests/features/escalamiento.feature
+[qa-crew 13:45:35]    CA-06 → BDD · tests/features/escalamiento.feature
+[qa-crew 13:45:35] 5 · Ejecutor · anthropic/claude-opus-5-5 · fase ROJO (antes del código)
+[qa-crew 13:46:01]    exit {'unit': 1, 'bdd': 1} · por CA: CA-01=❌, CA-02=❌, CA-03=❌, CA-04=❌, CA-05=❌, CA-06=❌
+[qa-crew 13:46:01] 4 · Desarrollador · anthropic/claude-sonnet-5-5 · intento 1
+[qa-crew 13:46:01]    (sin LLM: agent-intento-1.ts)
+[qa-crew 13:46:01] 5 · Ejecutor · anthropic/claude-opus-5-5 · fase VERDE (unit + bdd + e2e)
+[qa-crew 13:46:38]    exit {'unit': 1, 'bdd': 0, 'e2e': 0} · CA-01=✅, CA-02=✅, CA-03=❌, CA-04=✅, CA-05=✅, CA-06=✅
+[qa-crew 13:46:38] 4 · Desarrollador · anthropic/claude-sonnet-5-5 · intento 2
+[qa-crew 13:46:38]    (sin LLM: agent-intento-2.ts)
+[qa-crew 13:46:38] 5 · Ejecutor · anthropic/claude-opus-5-5 · fase VERDE (unit + bdd + e2e)
+[qa-crew 13:47:14]    exit {'unit': 0, 'bdd': 0, 'e2e': 0} · CA-01=✅, CA-02=✅, CA-03=✅, CA-04=✅, CA-05=✅, CA-06=✅
+[qa-crew 13:47:14] 5 · Ejecutor · anthropic/claude-opus-5-5 · match CA ↔ tarea ↔ cambio
+[qa-crew 13:47:14] RESULTADO: VERDE en el intento 2 → out/reporte.md

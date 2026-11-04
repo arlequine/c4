@@ -1,9 +1,9 @@
 [project]
 name = "qa-crew"
-version = "0.1.0"
-description = "QA crew con CrewAI: spec → tests → código → E2E en verde (Clase 8, bonus) — AI for Developers 30X"
+version = "0.2.0"
+description = "QA crew con CrewAI: spec → olas → plan → pruebas TDD/BDD → desarrollo → ejecución (Clase 8, bonus) — AI for Developers 30X"
 requires-python = ">=3.11,<3.14"
-dependencies = ["crewai[anthropic]==1.15.35"]
+dependencies = ["crewai[anthropic]==1.15.35", "pyyaml>=6"]
 
 [project.scripts]
 crew = "qa_crew.main:cli"

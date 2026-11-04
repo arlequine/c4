@@ -1,11 +1,7 @@
-# Corrida grabada (plan B)
+# Corridas grabadas (plan B)
 
-Generada con `--sin-llm` el 3 de noviembre de 2026: la revisión, el `.feature` y los dos
-intentos de desarrollo vienen de `referencia/`; las pruebas se ejecutaron de verdad contra
-`qa-e2e/demo-app`.
-
-- `spec-incompleta/`: el revisor pone **D** y el flujo se detiene.
-- `spec-lista/`: nota **A** → rojo → intento 1 con CA-03 en rojo (el saludo gana) → intento 2 en verde.
-
-Después de tu primera corrida real con Claude, guarda su `out/` en `out-ejemplo/claude/`
-para tener las dos versiones.
+- `sin-llm/`: corrida con `--sin-llm` del 4 de noviembre de 2026. Las respuestas de los modelos vienen de
+  `referencia/`; las pruebas se ejecutaron de verdad contra `qa-e2e/demo-app`. Olas A / B / C → plan con
+  TASK-001 y TASK-002 → 6 CA en rojo → intento 1 con CA-03 en rojo (gana el saludo) → intento 2 en verde.
+  `docs-tasks/` es el paquete de plan que quedó en `qa-e2e/docs/tasks/`.
+- `claude/`: guarda aquí tu primera corrida real (reporte, spec-review, consola y `docs/tasks`).

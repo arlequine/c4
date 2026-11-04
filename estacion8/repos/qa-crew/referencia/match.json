@@ -1,0 +1,35 @@
+{
+  "resumen": "Una sola regla cubre las dos olas; CA-03 depende de que vaya antes del saludo.",
+  "filas": [
+    {
+      "ca": "CA-01",
+      "tarea": "TASK-001",
+      "cambio": "La regex reconoce 'hablar con una persona' y la respuesta incluye 'asesor humano'"
+    },
+    {
+      "ca": "CA-02",
+      "tarea": "TASK-001",
+      "cambio": "Flag /i para mayúsculas; 'pas\\w* con' cubre 'me pasas con'; 'agente real' como alternativa"
+    },
+    {
+      "ca": "CA-03",
+      "tarea": "TASK-001",
+      "cambio": "La regla quedó antes del bloque // Saludo, así que 'Hola, quiero…' escala"
+    },
+    {
+      "ca": "CA-04",
+      "tarea": "TASK-001",
+      "cambio": "Prefijo `Entendido, ${name}. ` cuando extractName encuentra el nombre"
+    },
+    {
+      "ca": "CA-05",
+      "tarea": "TASK-002",
+      "cambio": "El texto de la respuesta incluye el horario fijo del supuesto"
+    },
+    {
+      "ca": "CA-06",
+      "tarea": "TASK-002",
+      "cambio": "El mismo prefijo con el nombre se ve en el chat"
+    }
+  ]
+}

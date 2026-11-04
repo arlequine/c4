@@ -1,0 +1,34 @@
+{
+  "filas": [
+    {
+      "ca": "CA-01",
+      "estrategia": "TDD",
+      "archivo": "demo-app/__tests__/escalamiento.test.ts"
+    },
+    {
+      "ca": "CA-02",
+      "estrategia": "TDD",
+      "archivo": "demo-app/__tests__/escalamiento.test.ts"
+    },
+    {
+      "ca": "CA-03",
+      "estrategia": "TDD",
+      "archivo": "demo-app/__tests__/escalamiento.test.ts"
+    },
+    {
+      "ca": "CA-04",
+      "estrategia": "TDD",
+      "archivo": "demo-app/__tests__/escalamiento.test.ts"
+    },
+    {
+      "ca": "CA-05",
+      "estrategia": "BDD",
+      "archivo": "tests/features/escalamiento.feature"
+    },
+    {
+      "ca": "CA-06",
+      "estrategia": "BDD",
+      "archivo": "tests/features/escalamiento.feature"
+    }
+  ]
+}

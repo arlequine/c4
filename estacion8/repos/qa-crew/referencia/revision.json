@@ -1,0 +1,329 @@
+{
+  "resumen": "Ola 1 lista (A). Ola 2 lista con un supuesto sobre el horario (B). Ola 3 sin reglas ni proveedor (C).",
+  "olas": [
+    {
+      "id": "ola-1",
+      "nombre": "Detección de la intención",
+      "nota_llm": "A",
+      "vacios_graves": [],
+      "criterios": [
+        {
+          "id": "P1",
+          "estado": "Cumple",
+          "evidencia": "§1 Problema y usuario",
+          "correccion": "",
+          "supuesto": ""
+        },
+        {
+          "id": "P3",
+          "estado": "Cumple",
+          "evidencia": "§3 Fuera de alcance",
+          "correccion": "",
+          "supuesto": ""
+        },
+        {
+          "id": "P5",
+          "estado": "Cumple",
+          "evidencia": "§2 Criterio de éxito",
+          "correccion": "",
+          "supuesto": ""
+        },
+        {
+          "id": "T3",
+          "estado": "Cumple",
+          "evidencia": "§4 comandos de unit y bdd",
+          "correccion": "",
+          "supuesto": ""
+        },
+        {
+          "id": "T4",
+          "estado": "Cumple",
+          "evidencia": "§4 TDD declarado",
+          "correccion": "",
+          "supuesto": ""
+        },
+        {
+          "id": "D2",
+          "estado": "Cumple",
+          "evidencia": "§5 POST /api/chat sin cambios",
+          "correccion": "",
+          "supuesto": ""
+        },
+        {
+          "id": "D3",
+          "estado": "N/A",
+          "evidencia": "§5 sin cambios de interfaz",
+          "correccion": "",
+          "supuesto": ""
+        },
+        {
+          "id": "D4",
+          "estado": "Cumple",
+          "evidencia": "§5 sin datos personales nuevos",
+          "correccion": "",
+          "supuesto": ""
+        },
+        {
+          "id": "P2",
+          "estado": "Cumple",
+          "evidencia": "Ola 1 · Alcance",
+          "correccion": "",
+          "supuesto": ""
+        },
+        {
+          "id": "P4",
+          "estado": "Cumple",
+          "evidencia": "Ola 1 · BR-ESC-01 a BR-ESC-04",
+          "correccion": "",
+          "supuesto": ""
+        },
+        {
+          "id": "P6",
+          "estado": "Cumple",
+          "evidencia": "Ola 1 sin pendientes",
+          "correccion": "",
+          "supuesto": ""
+        },
+        {
+          "id": "T1",
+          "estado": "Cumple",
+          "evidencia": "Ola 1 · CA-01 a CA-04 con resultado observable",
+          "correccion": "",
+          "supuesto": ""
+        },
+        {
+          "id": "T2",
+          "estado": "Cumple",
+          "evidencia": "Ola 1 · tabla de CA + casos borde",
+          "correccion": "",
+          "supuesto": ""
+        },
+        {
+          "id": "D1",
+          "estado": "Cumple",
+          "evidencia": "§5 generateResponse() en demo-app/lib/agent.ts",
+          "correccion": "",
+          "supuesto": ""
+        }
+      ]
+    },
+    {
+      "id": "ola-2",
+      "nombre": "Experiencia en el chat",
+      "nota_llm": "B",
+      "vacios_graves": [
+        "T2: no define el horario de los sábados en el escalamiento"
+      ],
+      "criterios": [
+        {
+          "id": "P1",
+          "estado": "Cumple",
+          "evidencia": "§1 Problema y usuario",
+          "correccion": "",
+          "supuesto": ""
+        },
+        {
+          "id": "P3",
+          "estado": "Cumple",
+          "evidencia": "§3 Fuera de alcance",
+          "correccion": "",
+          "supuesto": ""
+        },
+        {
+          "id": "P5",
+          "estado": "Cumple",
+          "evidencia": "§2 Criterio de éxito",
+          "correccion": "",
+          "supuesto": ""
+        },
+        {
+          "id": "T3",
+          "estado": "Cumple",
+          "evidencia": "§4 comandos de unit y bdd",
+          "correccion": "",
+          "supuesto": ""
+        },
+        {
+          "id": "T4",
+          "estado": "Cumple",
+          "evidencia": "§4 TDD declarado",
+          "correccion": "",
+          "supuesto": ""
+        },
+        {
+          "id": "D2",
+          "estado": "Cumple",
+          "evidencia": "§5 POST /api/chat sin cambios",
+          "correccion": "",
+          "supuesto": ""
+        },
+        {
+          "id": "D3",
+          "estado": "N/A",
+          "evidencia": "§5 sin cambios de interfaz",
+          "correccion": "",
+          "supuesto": ""
+        },
+        {
+          "id": "D4",
+          "estado": "Cumple",
+          "evidencia": "§5 sin datos personales nuevos",
+          "correccion": "",
+          "supuesto": ""
+        },
+        {
+          "id": "P2",
+          "estado": "Cumple",
+          "evidencia": "Ola 2 · Alcance",
+          "correccion": "",
+          "supuesto": ""
+        },
+        {
+          "id": "P4",
+          "estado": "Cumple",
+          "evidencia": "Ola 2 · BR-ESC-05 y BR-ESC-06",
+          "correccion": "",
+          "supuesto": ""
+        },
+        {
+          "id": "P6",
+          "estado": "Cumple",
+          "evidencia": "Ola 2 · Pendiente listado",
+          "correccion": "",
+          "supuesto": ""
+        },
+        {
+          "id": "T1",
+          "estado": "Cumple",
+          "evidencia": "Ola 2 · CA-05 y CA-06 en el chat",
+          "correccion": "",
+          "supuesto": ""
+        },
+        {
+          "id": "T2",
+          "estado": "Parcial",
+          "evidencia": "Ola 2 · CA-05/CA-06; falta el caso del sábado",
+          "correccion": "Decidir el horario del escalamiento en sábado",
+          "supuesto": "El horario del escalamiento es fijo, lunes a viernes de 8:00 AM a 6:00 PM, y no depende de la hora ni del día en que se pide."
+        },
+        {
+          "id": "D1",
+          "estado": "Cumple",
+          "evidencia": "§5 diseño común",
+          "correccion": "",
+          "supuesto": ""
+        }
+      ]
+    },
+    {
+      "id": "ola-3",
+      "nombre": "Transferencia real a un asesor",
+      "nota_llm": "C",
+      "vacios_graves": [
+        "P4: no hay reglas de tiempos de espera, fuera de horario ni datos enviados",
+        "D1: la herramienta de soporte no está elegida",
+        "T2: no hay casos ni bordes"
+      ],
+      "criterios": [
+        {
+          "id": "P1",
+          "estado": "Cumple",
+          "evidencia": "§1 Problema y usuario",
+          "correccion": "",
+          "supuesto": ""
+        },
+        {
+          "id": "P3",
+          "estado": "Cumple",
+          "evidencia": "§3 Fuera de alcance",
+          "correccion": "",
+          "supuesto": ""
+        },
+        {
+          "id": "P5",
+          "estado": "Cumple",
+          "evidencia": "§2 Criterio de éxito",
+          "correccion": "",
+          "supuesto": ""
+        },
+        {
+          "id": "T3",
+          "estado": "Cumple",
+          "evidencia": "§4 comandos de unit y bdd",
+          "correccion": "",
+          "supuesto": ""
+        },
+        {
+          "id": "T4",
+          "estado": "Cumple",
+          "evidencia": "§4 TDD declarado",
+          "correccion": "",
+          "supuesto": ""
+        },
+        {
+          "id": "D2",
+          "estado": "Cumple",
+          "evidencia": "§5 POST /api/chat sin cambios",
+          "correccion": "",
+          "supuesto": ""
+        },
+        {
+          "id": "D3",
+          "estado": "N/A",
+          "evidencia": "§5 sin cambios de interfaz",
+          "correccion": "",
+          "supuesto": ""
+        },
+        {
+          "id": "D4",
+          "estado": "Cumple",
+          "evidencia": "§5 sin datos personales nuevos",
+          "correccion": "",
+          "supuesto": ""
+        },
+        {
+          "id": "P2",
+          "estado": "Cumple",
+          "evidencia": "Ola 3 · Alcance",
+          "correccion": "",
+          "supuesto": ""
+        },
+        {
+          "id": "P4",
+          "estado": "Falta",
+          "evidencia": "",
+          "correccion": "Escribir reglas de cola, espera y fuera de horario",
+          "supuesto": ""
+        },
+        {
+          "id": "P6",
+          "estado": "Parcial",
+          "evidencia": "Ola 3 · proveedor sin elegir dicho en prosa",
+          "correccion": "Listarlo como decisión pendiente",
+          "supuesto": ""
+        },
+        {
+          "id": "T1",
+          "estado": "Cumple",
+          "evidencia": "Ola 3 · CA-07",
+          "correccion": "",
+          "supuesto": ""
+        },
+        {
+          "id": "T2",
+          "estado": "Falta",
+          "evidencia": "",
+          "correccion": "Casos con entradas y salidas, incluidos errores",
+          "supuesto": ""
+        },
+        {
+          "id": "D1",
+          "estado": "Falta",
+          "evidencia": "",
+          "correccion": "Elegir la herramienta de soporte y describir la integración",
+          "supuesto": ""
+        }
+      ]
+    }
+  ]
+}

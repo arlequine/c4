@@ -5,19 +5,24 @@ y solo puede correr las suites de una lista blanca.
 from __future__ import annotations
 
 import fnmatch
+import json
 import os
 import re
 import subprocess
+import tempfile
 from dataclasses import dataclass, field
 from pathlib import Path
 
 from crewai.tools import BaseTool
 from pydantic import BaseModel, Field, PrivateAttr
 
-SUITES: dict[str, list[str]] = {
-    "bdd": ["npm", "run", "test:bdd"],
-    "e2e": ["npx", "playwright", "test", "--project=chromium"],
-    "unit": ["npm", "--prefix", "demo-app", "run", "test:unit"],
+from .gate import ResultadoTest
+
+SUITES: dict[str, dict] = {
+    # cwd relativo a qa-e2e/; {json} se reemplaza por la ruta del reporte JSON
+    "unit": {"cwd": "demo-app", "cmd": ["npx", "vitest", "run", "--reporter=default", "--reporter=json", "--outputFile.json={json}"]},
+    "bdd": {"cwd": ".", "cmd": ["npm", "run", "test:bdd", "--", "--reporter=list,json"]},
+    "e2e": {"cwd": ".", "cmd": ["npx", "playwright", "test", "--project=chromium", "--reporter=list,json"]},
 }
 
 
@@ -26,6 +31,7 @@ class Ejecucion:
     suite: str
     exit_code: int
     salida: str  # últimas líneas
+    resultados: list[ResultadoTest] = field(default_factory=list)
 
 
 @dataclass
@@ -48,18 +54,51 @@ def _dentro(root: Path, ruta: str) -> Path:
     return p
 
 
+def _leer_vitest(path: Path) -> list[ResultadoTest]:
+    d = json.loads(path.read_text())
+    return [
+        ResultadoTest(nombre=a.get("fullName") or a.get("title", ""), ok=a.get("status") == "passed", suite="unit")
+        for f in d.get("testResults", []) for a in f.get("assertionResults", [])
+    ]
+
+
+def _leer_playwright(path: Path, suite: str) -> list[ResultadoTest]:
+    d = json.loads(path.read_text())
+    out: list[ResultadoTest] = []
+
+    def walk(s: dict, ruta: list[str]) -> None:
+        for sp in s.get("specs", []):
+            out.append(ResultadoTest(nombre=" > ".join([*ruta, sp.get("title", "")]), ok=bool(sp.get("ok")), suite=suite))
+        for c in s.get("suites", []):
+            walk(c, [*ruta, c.get("title", "")])
+
+    for s in d.get("suites", []):
+        walk(s, [s.get("title", "")])
+    return out
+
+
 def correr_suite(root: Path, suite: str, registro: Registro, timeout: int = 300) -> Ejecucion:
     if suite not in SUITES:
         raise PermissionError(f"Suite no permitida: {suite}. Permitidas: {', '.join(SUITES)}")
-    try:
-        env = {**os.environ, "FORCE_COLOR": "0", "CI": os.environ.get("CI", "")}
-        proc = subprocess.run(SUITES[suite], cwd=root, capture_output=True, text=True, timeout=timeout, env=env)
-        code, out = proc.returncode, (proc.stdout + proc.stderr)
-    except subprocess.TimeoutExpired as e:
-        code, out = 124, f"Timeout después de {timeout}s\n{e.stdout or ''}"
+    conf = SUITES[suite]
+    with tempfile.TemporaryDirectory() as tmp:
+        reporte = Path(tmp) / f"{suite}.json"
+        cmd = [c.replace("{json}", str(reporte)) for c in conf["cmd"]]
+        env = {**os.environ, "FORCE_COLOR": "0", "PLAYWRIGHT_JSON_OUTPUT_NAME": str(reporte)}
+        try:
+            proc = subprocess.run(cmd, cwd=root / conf["cwd"], capture_output=True, text=True, timeout=timeout, env=env)
+            code, out = proc.returncode, (proc.stdout + proc.stderr)
+        except subprocess.TimeoutExpired as e:
+            code, out = 124, f"Timeout después de {timeout}s\n{e.stdout or ''}"
+        resultados: list[ResultadoTest] = []
+        if reporte.exists():
+            try:
+                resultados = _leer_vitest(reporte) if suite == "unit" else _leer_playwright(reporte, suite)
+            except (ValueError, KeyError):
+                pass
     out = re.sub(r"\x1b\[[0-9;]*m", "", out)
-    lineas = [l for l in out.splitlines() if l.strip()]
-    ej = Ejecucion(suite, code, "\n".join(lineas[-60:]))
+    lineas = [l for l in out.splitlines() if l.strip() and not l.startswith("JSON report written")]
+    ej = Ejecucion(suite, code, "\n".join(lineas[-60:]), resultados)
     registro.ejecuciones.append(ej)
     return ej
 
@@ -139,7 +178,7 @@ class CorrerPruebas(BaseTool):
     name: str = "correr_pruebas"
     description: str = (
         "Corre una suite de pruebas de qa-e2e y devuelve el exit code y las últimas líneas. "
-        "Suites: bdd (npm run test:bdd), e2e (playwright chromium), unit (vitest de demo-app)."
+        "Suites: unit (Vitest de demo-app), bdd (npm run test:bdd), e2e (Playwright en Chromium)."
     )
     args_schema: type[BaseModel] = _CorrerArgs
     _root: Path = PrivateAttr()
@@ -154,4 +193,6 @@ class CorrerPruebas(BaseTool):
             ej = correr_suite(self._root, suite.strip().lower(), self._registro)
         except PermissionError as e:
             return f"ERROR: {e}"
-        return f"suite={ej.suite} exit_code={ej.exit_code}\n{ej.salida}"
+        fallas = [r.nombre for r in ej.resultados if not r.ok]
+        detalle = ("\nPruebas que fallaron:\n- " + "\n- ".join(fallas)) if fallas else ""
+        return f"suite={ej.suite} exit_code={ej.exit_code} pruebas={len(ej.resultados)} fallaron={len(fallas)}{detalle}\n{ej.salida}"

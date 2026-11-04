@@ -1,0 +1,10 @@
+planningWave: escalamiento-humano
+tasksDir: docs/tasks
+milestones:
+  - "M1: Detección de la intención"
+  - "M2: Experiencia en el chat"
+tasks:
+  - id: TASK-001
+    file: docs/tasks/001-deteccion-intencion.md
+  - id: TASK-002
+    file: docs/tasks/002-respuesta-en-el-chat.md
