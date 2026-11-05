@@ -81,6 +81,9 @@ comunicar con un asesor y en qué horario atienden.
 - **BR-ESC-05:** la respuesta visible incluye el horario de atención.
 - **BR-ESC-06:** si el usuario dijo su nombre antes en la conversación, la
   respuesta visible lo menciona.
+- **BR-ESC-07:** el horario que muestra el escalamiento es fijo, lunes a viernes
+  de 8:00 AM a 6:00 PM, y no depende de la hora ni del día en que se pide
+  (incluido el sábado).
 
 **Criterios de aceptación** (en el chat, con el navegador)
 
@@ -89,12 +92,9 @@ comunicar con un asesor y en qué horario atienden.
 | CA-05 | Conversación nueva | `Quiero hablar con una persona` | menciona `asesor humano` y `lunes a viernes de 8:00 AM a 6:00 PM` |
 | CA-06 | Antes envió `Mi nombre es Ana` | `Quiero hablar con un asesor` | menciona `asesor humano` y `Ana` |
 
-**Pendiente:** no está definido qué pasa con el horario los sábados, que sí
-tienen atención de 9:00 AM a 1:00 PM según la respuesta de horarios actual.
-
-**Supuesto propuesto (pendiente de aprobación):** el horario del escalamiento es
-fijo, `lunes a viernes de 8:00 AM a 6:00 PM`, y no depende de la hora ni del
-día en que se pide.
+**Casos borde:** un sábado a las 10:00 AM (reloj del sistema fijado), `Quiero
+hablar con una persona` devuelve la misma respuesta que CA-05: menciona
+`asesor humano` y `lunes a viernes de 8:00 AM a 6:00 PM`, y no menciona `sábados`.
 
 ---
 

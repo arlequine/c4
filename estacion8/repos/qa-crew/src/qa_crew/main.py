@@ -141,7 +141,8 @@ class Estado(BaseModel):
 def _llm(etapa: str):
     from crewai import LLM
 
-    return LLM(model=modelo(etapa), temperature=0.1)
+    # Los modelos Claude 5 ya no aceptan `temperature` (la API responde 400).
+    return LLM(model=modelo(etapa))
 
 
 def _skill(nombre: str):
