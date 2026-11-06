@@ -1,0 +1,169 @@
+# Config central de OpenSymphony 3.0.0 · ejercicio FBK-01 (schema_version 1). Base: ../smoke/config.template.yaml (probada en el ensayo 3).
+# Generada con `opensymphony migrate apply` y ajustada a mano:
+#   - routing.harness: acp + perfil `claude` (adaptador claude-agent-acp)
+#   - estados de Linear por defecto (sin Human Review / Merging / Rework)
+#   - hooks.after_create clona el repo en cada workspace (legacy_single NO usa worktrees;
+#     use_shared_git_worktrees se ignora en 3.0.0 y sin este hook el workspace queda vacío)
+# setup-fbk01.sh reemplaza __HOME__, __SLUG__ y __ACP_BIN__.
+schema_version: 1
+acp:
+  profiles:
+    claude:
+      command: __ACP_BIN__
+      args: []
+      transport: stdio
+      protocol_versions: [1]
+      env_refs:
+        LINEAR_API_KEY: LINEAR_API_KEY
+      permissions:
+        mode: allow_once
+      # Modelo de los agentes. Sin esto usa el default de tu login (Opus 5.5 en el ensayo 3).
+      # El ID debe ser uno de los que anuncia el adaptador: revísalo en la TUI (run detail) antes de fijarlo.
+      # session:
+      #   model: <id-de-modelo>
+instance:
+  id: e8-fbk01
+  state_root: ~/.opensymphony/state/e8-fbk01
+routing:
+  mode: legacy_single
+  repository: c4
+  harness: acp
+  harness_profile: claude
+  model: null
+  model_profile: null
+  harness_env: null
+  model_env: null
+  model_profile_env: null
+tracker_profiles:
+  linear-e8:
+    provider: linear
+    endpoint: https://api.linear.app/graphql
+    credential: linear-api-key
+    active_states:
+    - Todo
+    - In Progress
+    # In Review y Backlog NO son activos: ahí el agente se detiene (Review → verificador, Backlog → bloqueado).
+    terminal_states:
+    - Done
+    - Canceled
+    - Cancelled
+    - Duplicate
+project_sets:
+  e8-fbk01-set:
+    tracker_profile: linear-e8
+    projects:
+    - __SLUG__
+linear_projects:
+  __SLUG__:
+    provider_project_id: __SLUG__
+    provider_project_slug: __SLUG__
+    repositories:
+    - c4
+repositories:
+  c4:
+    aliases:
+    - fbk01
+    remote:
+      provider: git
+      locator: __HOME__/c4
+      clone: __HOME__/c4
+    target_branch: estacion8/orquestacion-opensymphony
+    credential: local-git
+    review_profile: local-review
+    instructions:
+      path: estacion8/orquestacion/fbk01/WORKFLOW.md
+    checkout_path: __HOME__/c4
+credentials:
+  linear-api-key:
+    kind: environment
+    variable: LINEAR_API_KEY
+  local-git:
+    kind: ssh-agent
+review_profiles:
+  local-review:
+    provider: git
+    credential: local-git
+    required_checks: false
+    required_review: false
+    merge_method: squash
+workspace:
+  root: __HOME__/.opensymphony/workspaces/e8-fbk01
+  retain_failed: true
+  cleanup_after_parent_finalization: false
+scheduler:
+  max_concurrent_tasks: 3   # la Ola 2 tiene 3 tareas en paralelo
+  max_concurrent_agents_by_state: {}
+  max_turns: 20
+  max_retry_backoff_ms: 300000
+  stall_timeout_ms: 900000   # npm ci + Playwright pueden tardar
+  poll_interval_ms: 5000
+hooks:
+  after_create: |
+    git clone --quiet file://__HOME__/c4 .
+    git remote set-url origin https://github.com/arlequine/c4.git
+    git fetch --quiet origin estacion8/orquestacion-opensymphony
+    git switch --quiet -C estacion8/orquestacion-opensymphony FETCH_HEAD
+    npm ci --silent --prefix estacion8/repos/qa-e2e
+    npm ci --silent --prefix estacion8/repos/qa-e2e/demo-app
+  before_run: |
+    git status --short
+  after_run: |
+    git status --short
+  before_remove: |
+    git status --short
+  timeout_ms: 600000
+integration:
+  policy: builtin:legacy-single
+  use_shared_git_worktrees: false
+memory:
+  catalog_root: ~/.opensymphony/state/e8-fbk01/memory
+  auto_capture: false
+  auto_archive: false
+  serve: false
+  bind: null
+  token_env: null
+control_plane:
+  bind: 127.0.0.1:2468
+openhands:
+  tool_dir: __HOME__/.opensymphony/openhands-server
+  transport_base_url: http://127.0.0.1:8000
+  transport_session_api_key_env: null
+  front_matter:
+    transport:
+      base_url: http://127.0.0.1:8000
+      session_api_key_env: null
+    local_server:
+      enabled: true
+      command: null
+      startup_timeout_ms: null
+      readiness_probe_path: null
+      env: {}
+    conversation:
+      reuse_policy: null
+      persistence_dir_relative: .opensymphony/openhands
+      max_iterations: 500
+      stuck_detection: true
+      confirmation_policy:
+        kind: NeverConfirm
+      agent:
+        kind: Agent
+        llm:
+          model: ${LLM_MODEL}
+          api_key_env: null
+          base_url_env: null
+          credential_mode: null
+          subscription: null
+        condenser: null
+        tools: null
+        include_default_tools: null
+        log_completions: null
+    websocket:
+      enabled: null
+      ready_timeout_ms: null
+      reconnect_initial_ms: null
+      reconnect_max_ms: null
+      auth_mode: null
+      query_param_name: null
+    mcp: null
+compatibility:
+  allow_repo_local_config: false
