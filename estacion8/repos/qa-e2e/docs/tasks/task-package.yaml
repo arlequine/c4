@@ -1,0 +1,19 @@
+planningWave: fbk-01-feedback
+tasksDir: docs/tasks
+milestones:
+  - "Ola 1: Modelo y API de escritura"
+  - "Ola 2: UI, estadísticas y panel"
+  - "Ola 3: Flujo completo E2E + BDD"
+tasks:
+  - id: TASK-001
+    file: docs/tasks/001-modelo-feedback.md
+  - id: TASK-002
+    file: docs/tasks/002-post-api-feedback.md
+  - id: TASK-003
+    file: docs/tasks/003-ui-botones-motivo.md
+  - id: TASK-004
+    file: docs/tasks/004-stats-api.md
+  - id: TASK-005
+    file: docs/tasks/005-panel-admin.md
+  - id: TASK-006
+    file: docs/tasks/006-flujo-e2e-bdd.md
