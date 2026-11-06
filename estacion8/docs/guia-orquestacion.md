@@ -141,6 +141,22 @@ opensymphony tui     # o: curl -s 127.0.0.1:2468/api/v1/snapshot | jq
 
 **Limpieza:** `Ctrl+C` en `run`, `rm -rf ~/os-smoke ~/.opensymphony/workspaces/e8-smoke ~/.opensymphony/state/e8-smoke`. Archiva el proyecto Smoke en Linear cuando quieras.
 
+### 0.7 Plan B global: orquestar sin OpenSymphony (solo si la prueba 0.6 falla)
+
+Claude Code como orquestador, sin daemon externo:
+- La skill `orquestar-olas` lee Linear con el MCP, arma el grafo con los "blocked by" y lanza un subagente por issue listo.
+- Subagente `dev-fbk`: `isolation: worktree`, `skills: [implementar-spec]`, rama `fbk-01/<ID>`, un puerto por worktree (3001, 3002…; `BASE_URL` ya lo lee `playwright.config.ts`).
+- Subagente `verificador-fbk`: sin `Edit`/`Write`. Corre las pruebas y comenta en Linear.
+- El orquestador abre el PR y mueve el issue a `Done`, o relanza al dev (máximo 2 reintentos).
+- `.claude/settings.json` niega `git merge`, `git push --force`, `git push origin main` y `gh pr merge`.
+
+Equivalencias para clase: el polling de Linear se vuelve la skill orquestadora; el workspace por issue, `isolation: worktree`; `WORKFLOW.md`, el prompt de `dev-fbk`; y el filtro de bloqueados, el que hace el orquestador.
+
+Por probar si se activa:
+- que el subagente vea el MCP de Linear;
+- que `skills:` precargue `implementar-spec`;
+- que `implementar-spec` no se detenga a pedir aprobación dentro de un subagente.
+
 ### Registro Fase 0 (ensayo 2026-11-06)
 
 Funcionó:
