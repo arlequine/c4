@@ -22,7 +22,7 @@ Que cada respuesta del asistente tenga su `messageId`, botones 👍/👎 y, con 
 - `demo-app/app/page.tsx`: `messageId` con `crypto.randomUUID()` al recibir cada respuesta (RF-06). Botones con `aria-label` "Me sirvió" / "No me sirvió", `aria-pressed` y testids `feedback-up` / `feedback-down`.
 - Con 👎: `feedback-reason` (`maxLength=200`, placeholder "¿Qué faltó?") y `feedback-reason-submit` ("Enviar motivo").
 - Cambio de voto (BR-FBK-01) y clic en el botón activo sin efecto (BR-FBK-05).
-- `pages/HomePage.ts`: métodos `rateLatest(up|down)`, `submitReason(text)` y locators de los botones.
+- `pages/HomePage.ts` ya trae `rate()`, `submitReason()`, `upButton()`, `downButton()`, `reasonInput()` y `reasonSubmit()` (Fase 5). La UI debe cumplir esos locators: botones con nombre accesible "Me sirvió" / "No me sirvió", placeholder "¿Qué faltó?" y botón "Enviar motivo", todo **dentro** de cada `agent-message`.
 
 ### Out of scope
 
@@ -31,7 +31,7 @@ Que cada respuesta del asistente tenga su `messageId`, botones 👍/👎 y, con 
 ## Deliverables
 
 - `demo-app/app/page.tsx`
-- `pages/HomePage.ts` (solo métodos y locators nuevos)
+- Ajustes en `pages/HomePage.ts`, solo si el DOM real lo exige (los métodos FBK-01 ya existen desde la Fase 5)
 
 ## Acceptance Criteria
 
@@ -45,9 +45,9 @@ Que cada respuesta del asistente tenga su `messageId`, botones 👍/👎 y, con 
 
 ## Test Plan
 
-- `tests/e2e/feedback.spec.ts`, casos CA-01..04, CA-13, CA-16 y CA-20, con `page.waitForRequest` para los `POST`:
-  `BASE_URL=http://localhost:<puerto> npx playwright test tests/e2e/feedback.spec.ts --project=chromium`.
-- Regresión: los 4 E2E y 4 BDD existentes en verde. Los botones no deben romper `latestAgentMessage.textContent()` en `HomePage`.
+- Pruebas ya escritas (Fase 5): `tests/e2e/feedback.spec.ts`, que usa los métodos FBK-01 de `pages/HomePage.ts` (ya existen).
+- Verificar: `BASE_URL=http://localhost:<puerto> npx playwright test --project=chromium --grep @TASK-003` → 7 en verde.
+- Regresión: `BASE_URL=http://localhost:<puerto> npx playwright test --project=chromium --project=bdd --grep-invert "@TASK-"`.
 
 ## Context
 

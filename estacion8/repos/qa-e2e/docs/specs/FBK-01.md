@@ -157,7 +157,7 @@ reiniciar el servidor.
   y store (CA-06, CA-07, CA-08, CA-18, CA-19) y `computeStats` con **valores
   absolutos** (CA-09, CA-10, CA-11).
   Comando: `npm --prefix demo-app run test:unit`.
-- **API (Playwright `request`)** en `tests/e2e/feedback-api.spec.ts`: CA-05,
+- **API (Playwright `request`)** en `tests/api/feedback-api.spec.ts`, con el builder `fixtures/feedback-builders.ts` y el proyecto `api` (sin paralelismo): CA-05,
   CA-06, CA-07, CA-08, CA-17 y CA-19. Las stats se comparan como **diferencias**
   (antes/después), nunca como valores absolutos (ver R-01).
 - **E2E (Playwright + POM)** en `tests/e2e/feedback.spec.ts`, con un Page
@@ -169,7 +169,8 @@ reiniciar el servidor.
 - Comando E2E/BDD: `npx bddgen && npx playwright test --project=chromium --project=bdd`
   con `demo-app` corriendo en el puerto de su worktree (`BASE_URL`).
 - Regresión: los 15 unitarios, 4 E2E y 4 BDD existentes siguen en verde.
-- Cada prueba lleva en su nombre el ID del CA que cubre.
+- Cada prueba lleva en su nombre el ID del CA que cubre y un tag `@TASK-00N` para verificarla por tarea (`--grep @TASK-00N`).
+- Las unitarias están separadas por tarea: `feedback.test.ts` (TASK-001) y `feedback-stats.test.ts` (TASK-004).
 
 ## 8. Supuestos (S) y preguntas abiertas (P)
 

@@ -38,9 +38,9 @@ Exponer `POST /api/feedback` con el contrato de la spec, usando el esquema y el 
 
 ## Test Plan
 
-- `tests/e2e/feedback-api.spec.ts` (Playwright `request`), casos CA-05..08, CA-17 (status) y CA-19:
-  `BASE_URL=http://localhost:<puerto> npx playwright test tests/e2e/feedback-api.spec.ts --project=chromium`.
-- Regresión: `npx playwright test --project=chromium --project=bdd` en verde.
+- Pruebas ya escritas (Fase 5): `tests/api/feedback-api.spec.ts`, con el builder `fixtures/feedback-builders.ts`.
+- Verificar: `BASE_URL=http://localhost:<puerto> npx playwright test --project=api --grep @TASK-002` → todo en verde.
+- Regresión: `BASE_URL=http://localhost:<puerto> npx playwright test --project=chromium --project=bdd --grep-invert "@TASK-"` (los 4 E2E + 4 BDD originales).
 
 ## Context
 

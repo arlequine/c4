@@ -41,8 +41,9 @@ Calcular las estadísticas con una función pura y exponerlas en `GET /api/feedb
 
 ## Test Plan
 
-- Unitarias: `npm --prefix demo-app run test:unit` con CA-09..11 y CA-18 en `feedback.test.ts`.
-- API: `tests/e2e/feedback-api.spec.ts` con CA-17 en diferencias.
+- Pruebas ya escritas (Fase 5): `demo-app/__tests__/feedback-stats.test.ts` y los tests `@TASK-004` de `tests/api/feedback-api.spec.ts`.
+- Verificar: `npm --prefix demo-app run test:unit -- __tests__/feedback-stats.test.ts` y `BASE_URL=http://localhost:<puerto> npx playwright test --project=api --grep @TASK-004` → todo en verde.
+- Regresión: `npm --prefix demo-app run test:unit` completo y `BASE_URL=http://localhost:<puerto> npx playwright test --project=api --grep @TASK-002`.
 
 ## Context
 

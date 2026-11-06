@@ -344,3 +344,76 @@ python3 $S dry-run  --manifest docs/tasks/task-package.yaml --repo-root .
 ### Registro Fase 3 (2026-11-06)
 - ✅ `validate` ok y `dry-run` ok.
 - ⚠️ **Decisión pendiente para la Fase 6 (integración entre olas):** cada agente abre su rama desde `estacion8/orquestacion-opensymphony` y ninguno hace merge. Así, la Ola 2 arrancaría **sin el código de la Ola 1**. Propuesta: "Done" = PR mergeado **a la rama del ejercicio** (no a `main`) por Alfredo después del verificador. Ese merge humano es el portón entre olas.
+
+---
+
+## Fase 4 · Subir a Linear (la corre Alfredo en WSL)
+
+El sandbox no llega a `api.linear.app`, así que el `apply` se corre en WSL.
+
+### 4.1 Preparar Linear (a mano)
+1. En el equipo **EST** → Settings → Workflow, crea el estado **`In Review`** de tipo *Started*.
+2. Crea el proyecto **"30X · E8 Orquestación"** en EST y copia su **slugId** (la parte final de la URL).
+
+### 4.2 Dry-run y apply
+```bash
+cd ~/c4 && git pull && cd estacion8/repos/qa-e2e
+export LINEAR_API_KEY=lin_api_...
+S=.claude/skills/convert-tasks-to-linear/scripts/convert_tasks_to_linear.py
+python3 $S dry-run --manifest docs/tasks/task-package.yaml --repo-root .
+python3 $S apply   --manifest docs/tasks/task-package.yaml --repo-root . --project-slug <slugId> --team-key EST
+```
+**Esperado:**
+- 3 milestones (Ola 1/2/3).
+- 6 issues con título `FBK-01 · …`, etiquetas `area:*` + `ola-N` y los *blocked by* de la tabla de la Fase 3.
+- El archivo `docs/tasks/linear-publish.yaml` con el mapeo `TASK-00N → EST-NN`.
+
+**Verificar:**
+- En Linear, EST-?? (TASK-003) muestra "Blocked by" con TASK-001 y TASK-002.
+- `cat docs/tasks/linear-publish.yaml`.
+- Haz commit de `linear-publish.yaml` en la rama del ejercicio.
+
+**Plan B:**
+- Si falla con `Linear helper not found`, revisa que exista `.claude/skills/linear/scripts/linear_graphql.py`.
+- Si falla por falta de PyYAML: `pip install --user pyyaml`.
+- Si el proyecto tiene varios equipos y no pasaste `--team-key`, el script lo pide.
+
+---
+
+## Fase 5 · Tests primero (en rojo)
+
+**Prompt:**
+> Usa la skill qa-testing. Para cada tarea de `docs/tasks/`, genera las pruebas a partir de sus CA: unitarias con Vitest para la validación y las stats, API con un builder en `fixtures/`, y E2E/BDD con el POM. Primero el POM y después los tests. Marca cada test con el tag `@TASK-00N`. Corre todo y confirma que solo fallan las pruebas nuevas.
+
+**Qué se generó:**
+
+| Archivo | Tarea(s) | Nivel |
+|---|---|---|
+| `demo-app/__tests__/feedback.test.ts` | 001 | Vitest: esquema zod + store (11) |
+| `demo-app/__tests__/feedback-stats.test.ts` | 004 | Vitest: `computeStats` (5) |
+| `fixtures/feedback-builders.ts` | 002, 004 | builder de la API (regla §5 de `qa-testing`) |
+| `tests/api/feedback-api.spec.ts` | 002 (7), 004 (3) | Playwright `request`, proyecto **`api`** nuevo, sin paralelismo |
+| `pages/HomePage.ts` (+ métodos), `pages/FeedbackPanelPage.ts` | 003, 005, 006 | POM, primero (regla §8) |
+| `tests/e2e/feedback.spec.ts` | 003 (7), 005 (2), 006 (2) | E2E; el archivo corre en orden en un worker |
+| `tests/features/feedback.feature` + `steps/feedback.steps.ts` | 006 | BDD (CA-15) |
+
+**Comando:**
+```bash
+cd estacion8/repos/qa-e2e
+npm --prefix demo-app run test:unit
+npx bddgen && npx playwright test --project=chromium --project=bdd --project=api
+```
+**Esperado (rojo):**
+- Vitest: 2 archivos fallan (no existen `lib/feedback*`) y 15 pasan.
+- Playwright: **22 fallan** (404 o elementos que no existen) y los **8 originales pasan**.
+
+**Verificar por tarea:** `npx playwright test --project=chromium --grep @TASK-003` (y así cada una).
+
+### Registro Fase 5 (2026-11-06)
+- ✅ Rojo confirmado: 22 de Playwright y 2 archivos de Vitest. Regresión 8/8 + 15/15 en verde.
+- Decisiones:
+  - Los **POM y los steps BDD se escriben en la Fase 5**. Si no, los imports rotos y `bddgen` ("missing steps") tumban la suite de todos los agentes. Las tareas 003, 005 y 006 ahora solo ajustan el POM si el DOM real lo exige.
+  - Se agrega el proyecto `api` a `playwright.config.ts`. La skill pide `tests/api/` y builders, y ningún proyecto existente corría esa carpeta.
+  - `feedback.spec.ts` usa `mode: 'default'` y no `serial`: con `serial`, al primer fallo se saltaban 10 tests.
+  - Tags `@TASK-00N` en cada test. El verificador de cada issue usa `--grep @TASK-00N` y la regresión `--grep-invert "@TASK-"`.
+- **Para el verificador (Fase 7):** el comando del prompt (`--project=chromium --project=bdd`) no corre los tests de API. Hay que agregar `--project=api` o usar el comando del *Test Plan* de cada issue.

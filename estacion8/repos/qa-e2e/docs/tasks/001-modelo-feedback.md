@@ -44,9 +44,10 @@ Crear el dominio de FBK-01 en `demo-app/lib/feedback.ts`: tipos, esquema zod de 
 
 ## Test Plan
 
-- `npm --prefix demo-app run test:unit`: `demo-app/__tests__/feedback.test.ts`, casos de esquema y store, en verde.
-- Regresión: los 15 tests de `agent.test.ts` siguen en verde.
-- `npx --prefix demo-app tsc --noEmit -p demo-app` sin errores.
+- Pruebas ya escritas (Fase 5, en rojo): `demo-app/__tests__/feedback.test.ts`.
+- Verificar: `npm --prefix demo-app run test:unit -- __tests__/feedback.test.ts` → todo en verde.
+- Regresión: `npm --prefix demo-app run test:unit -- __tests__/agent.test.ts` (15 en verde) y `npx tsc --noEmit -p demo-app`.
+- `__tests__/feedback-stats.test.ts` sigue en rojo hasta TASK-004: es lo esperado.
 
 ## Context
 
@@ -64,4 +65,4 @@ Crear el dominio de FBK-01 en `demo-app/lib/feedback.ts`: tipos, esquema zod de 
 
 ## Notes
 
-- Exporta también una función para vaciar el store, solo para las pruebas unitarias (`resetFeedbackStore()`). No la expongas por HTTP.
+- Las pruebas importan `FeedbackInput`, `saveFeedback`, `listFeedback`, `resetFeedbackStore` y el tipo `Feedback` desde `lib/feedback.ts`. `resetFeedbackStore()` es solo para pruebas: no lo expongas por HTTP.

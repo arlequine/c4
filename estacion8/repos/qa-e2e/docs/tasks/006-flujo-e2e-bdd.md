@@ -19,8 +19,8 @@ Cerrar FBK-01 con la integración real: calificar en el chat y verlo en el panel
 
 ### In scope
 
-- `steps/feedback.steps.ts`: steps nuevos para `tests/features/feedback.feature`, reutilizando `HomePage` y `FeedbackPanelPage`.
-- Ajustes a POM, si hacen falta, para el flujo integrado.
+- `steps/feedback.steps.ts` y `tests/features/feedback.feature` ya existen (Fase 5). Esta tarea los pone en verde contra la integración real y corrige steps o POM si el DOM real lo exige.
+- Arreglar cualquier problema de integración entre las tareas 003, 004 y 005.
 
 ### Out of scope
 
@@ -28,8 +28,7 @@ Cerrar FBK-01 con la integración real: calificar en el chat y verlo en el panel
 
 ## Deliverables
 
-- `steps/feedback.steps.ts`
-- Ajustes menores en `pages/HomePage.ts` y `pages/FeedbackPanelPage.ts`, si aplican.
+- Ajustes en `steps/feedback.steps.ts`, `pages/*.ts` o en el código de las tareas 003, 004 y 005, solo para la integración.
 
 ## Acceptance Criteria
 
@@ -40,12 +39,13 @@ Cerrar FBK-01 con la integración real: calificar en el chat y verlo en el panel
 
 ## Test Plan
 
-- `npx bddgen && BASE_URL=http://localhost:<puerto> npx playwright test --project=chromium --project=bdd`
-- `npm --prefix demo-app run test:unit`
+- Pruebas ya escritas (Fase 5): los tests `@TASK-006` de `tests/e2e/feedback.spec.ts`, más `tests/features/feedback.feature` con `steps/feedback.steps.ts`.
+- Verificar: `npx bddgen && BASE_URL=http://localhost:<puerto> npx playwright test --project=chromium --project=bdd --grep @TASK-006` → 3 en verde.
+- Regresión completa: `npm --prefix demo-app run test:unit` y `npx bddgen && BASE_URL=http://localhost:<puerto> npx playwright test --project=chromium --project=bdd --project=api`.
 
 ## Context
 
-- Los `.feature` y specs de esta tarea se escriben en la Fase 5 (en rojo). Esta tarea implementa los steps y el pegamento del POM.
+- El `.feature`, los steps y los specs `@TASK-006` se escribieron en la Fase 5, en rojo.
 - Las pruebas comparan diferencias o coherencia con `/stats`, nunca valores absolutos (R-01, S-06).
 - Spec: `docs/specs/FBK-01.md` (v2) y su evaluación `docs/specs/FBK-01-review.md`.
 - Las pruebas de esta tarea ya existen en rojo (Fase 5, TDD). Tu trabajo es ponerlas en verde sin editarlas. Si una prueba está mal, repórtalo en el issue y no la cambies.

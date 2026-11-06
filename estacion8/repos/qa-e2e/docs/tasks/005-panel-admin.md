@@ -21,7 +21,7 @@ Página `/admin/feedback` que lee `GET /api/feedback/stats` y muestra totales, %
 
 - `demo-app/app/admin/feedback/page.tsx` como **componente cliente** con `fetch` a `/api/feedback/stats` al cargar.
 - Testids: `stat-up`, `stat-down`, `stat-total`, `stat-satisfaction` (con `%`), `reasons-list` > `reason-item`, y `empty-state` ("Aún no hay calificaciones").
-- `pages/FeedbackPanelPage.ts` (POM nuevo): `goto()`, `readStats()` y `reasons()`.
+- `pages/FeedbackPanelPage.ts` ya existe (Fase 5). El panel debe cumplir sus testids.
 
 ### Out of scope
 
@@ -31,7 +31,7 @@ Página `/admin/feedback` que lee `GET /api/feedback/stats` y muestra totales, %
 ## Deliverables
 
 - `demo-app/app/admin/feedback/page.tsx`
-- `pages/FeedbackPanelPage.ts`
+- Ajustes en `pages/FeedbackPanelPage.ts`, solo si el DOM real lo exige (ya existe desde la Fase 5)
 
 ## Acceptance Criteria
 
@@ -40,8 +40,9 @@ Página `/admin/feedback` que lee `GET /api/feedback/stats` y muestra totales, %
 
 ## Test Plan
 
-- `tests/e2e/feedback.spec.ts`, casos CA-14 y CA-12 simulado, con `page.route('**/api/feedback/stats', ...)`.
-- La versión de CA-12 contra datos reales queda en TASK-006.
+- Pruebas ya escritas (Fase 5): los tests `@TASK-005` de `tests/e2e/feedback.spec.ts`, con `/stats` simulado vía `page.route`. El POM `pages/FeedbackPanelPage.ts` ya existe.
+- Verificar: `BASE_URL=http://localhost:<puerto> npx playwright test --project=chromium --grep @TASK-005` → 2 en verde.
+- La versión de CA-12 con datos reales es `@TASK-006`.
 
 ## Context
 
