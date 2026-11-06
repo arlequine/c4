@@ -3,9 +3,9 @@
   "version": "1.0.0",
   "description": "Evaluación de agentes IA con patrón Persona + Juez — Clase 8 AI for Developers 30X",
   "scripts": {
-    "eval": "ts-node scripts/run-evaluation.ts",
-    "eval:persona": "ts-node scripts/run-evaluation.ts --persona carlos",
-    "eval:all": "ts-node scripts/run-evaluation.ts --all"
+    "eval": "node --env-file=.env -r ts-node/register scripts/run-evaluation.ts",
+    "eval:persona": "node --env-file=.env -r ts-node/register scripts/run-evaluation.ts --persona carlos",
+    "eval:all": "node --env-file=.env -r ts-node/register scripts/run-evaluation.ts --all"
   },
   "dependencies": {
     "openai": "^4.68.0"

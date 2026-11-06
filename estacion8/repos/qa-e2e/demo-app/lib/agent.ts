@@ -40,6 +40,21 @@ export function extractTopics(messages: Message[]): string[] {
 }
 
 /**
+ * Detecta si el usuario pide hablar con una persona / asesor humano.
+ * Cubre: hablar / comunicar(me|se) / pasa(s|r|me) + "con" + persona|humano|asesor|agente,
+ * y menciones directas de "asesor humano", "agente humano" y "agente real".
+ */
+export function wantsHuman(message: string): boolean {
+  const verbo = /\b(?:habl\w*|comunic\w*|pas(?:a|as|ar|ame|arme|arlo|arla|en|es|e))\b/;
+  const destino = /\bcon\s+(?:un|una|el|la|alg[uú]n|alguna)?\s*(?:persona|humano|humana|asesor|asesora|agente)/;
+  const directo = /\b(?:asesor|agente)\s+humano\b|\bagente\s+real\b|\bpersona\s+real\b/;
+
+  const texto = message.toLowerCase();
+  if (directo.test(texto)) return true;
+  return verbo.test(texto) && destino.test(texto);
+}
+
+/**
  * Genera una respuesta del agente dado el historial previo y el mensaje actual.
  */
 export function generateResponse(history: Message[], userMessage: string): string {
@@ -58,6 +73,12 @@ export function generateResponse(history: Message[], userMessage: string): strin
     if (topics.length) parts.push(`mencionaste que necesitabas ${topics.join(' y ')}`);
     if (parts.length) return `¡Claro! ${parts.join('. ')}.`;
     return 'Lo siento, no tengo contexto previo sobre esa consulta.';
+  }
+
+  // Escalamiento a asesor humano (antes del saludo y de horarios)
+  if (wantsHuman(userMessage)) {
+    const greeting = name ? `Entendido, ${name}. ` : '';
+    return `${greeting}Te comunicaré con un asesor humano. Nuestro horario de atención es de lunes a viernes de 8:00 AM a 6:00 PM.`;
   }
 
   // Saludo
