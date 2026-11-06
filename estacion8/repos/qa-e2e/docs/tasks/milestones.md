@@ -1,33 +1,34 @@
-# Project Milestones · escalamiento-humano
+# FBK-01 · Milestones (olas)
 
-Spec de origen: **ESC · Escalar a un asesor humano** (asistente del chat de `qa-e2e/demo-app`).
+Fuente: `docs/specs/FBK-01.md` v2 · Evaluación: `docs/specs/FBK-01-review.md` (A · A · B).
+Una ola empieza solo cuando todas las tareas de la anterior están en **Done**. En Linear esto se hace con relaciones *blocked by*, que OpenSymphony respeta.
 
-Criterio de éxito global: ningún usuario que pida una persona recibe el mensaje
-genérico ("Gracias por tu mensaje. He recibido tu consulta…"), y en la siguiente
-corrida de Persona + Juez Carlos y Pedro dejan de reprobar por no poder escalar.
+```text
+Ola 1   TASK-001 ──► TASK-002
+                         │
+           ┌─────────────┼─────────────┐
+Ola 2   TASK-003     TASK-004      TASK-005      (en paralelo)
+           └─────────────┼─────────────┘
+Ola 3                TASK-006
+```
 
-Fuera de alcance en todas las olas: cambios de interfaz (sin botones ni pantallas
-nuevas) e idiomas distintos al español.
+## Ola 1: Modelo y API de escritura
 
-La Ola 3 (Transferencia real a un asesor, CA-07) **no está aprobada** y no forma
-parte de esta planning wave.
+Objetivo: dominio, regla de un voto por mensaje y `POST /api/feedback`.
 
-## M1: Ola 1 · Detección de la intención
+- TASK-001 Modelo Feedback, esquema zod y store en memoria
+- TASK-002 POST /api/feedback (espera a TASK-001: la Ola 1 corre en dos pasos)
 
-Goal: `generateResponse()` reconoce cuándo el usuario pide hablar con una persona
-y responde con el escalamiento (texto `asesor humano`), aunque el mensaje empiece
-con un saludo y personalizado con el nombre si se conoce. CA-01 a CA-04.
+## Ola 2: UI, estadísticas y panel
 
-Tasks:
+Objetivo: tres frentes en paralelo que solo dependen de la Ola 1.
 
-- TASK-001 Detectar la intención de hablar con un asesor humano en generateResponse()
+- TASK-003 Botones 👍/👎 y motivo en el chat
+- TASK-004 computeStats y GET /api/feedback/stats
+- TASK-005 Panel /admin/feedback (con `/stats` simulado)
 
-## M2: Ola 2 · Experiencia en el chat
+## Ola 3: Flujo completo E2E + BDD
 
-Goal: en el chat (navegador), quien pide una persona ve que lo van a comunicar con
-un asesor humano, el horario fijo de atención (lunes a viernes de 8:00 AM a 6:00 PM)
-y su nombre si lo dijo antes. CA-05 y CA-06. Depende de M1.
+Objetivo: integración real y regresión completa.
 
-Tasks:
-
-- TASK-002 Mostrar en el chat el escalamiento con horario fijo y nombre del usuario
+- TASK-006 Calificar → aparece en el panel

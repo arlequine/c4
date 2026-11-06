@@ -1,0 +1,44 @@
+planningWave: fbk-01-feedback
+linearProject: 30x-e8-orquestacion-47d7ccbc0ae8
+publishedAt: '2026-11-06T22:29:28.150533+00:00'
+milestones:
+  'Ola 1: Modelo y API de escritura':
+    milestoneId: dc3446f2-b68e-4e95-96e2-17a576dc99a7
+    name: 'Ola 1: Modelo y API de escritura'
+  "Ola 2: UI, estad\xEDsticas y panel":
+    milestoneId: 1027e568-6344-4017-af73-d31563d59cfe
+    name: "Ola 2: UI, estad\xEDsticas y panel"
+  'Ola 3: Flujo completo E2E + BDD':
+    milestoneId: fc2d1e54-4cca-4a83-934d-e121ee6e32ba
+    name: 'Ola 3: Flujo completo E2E + BDD'
+tasks:
+  TASK-001:
+    issue: EST-7
+    issueId: f184f22c-878e-4c97-bec3-1cf7fd64cb2b
+    url: https://linear.app/estacion8-e22/issue/EST-7/fbk-01-modelo-feedback-esquema-zod-y-store-en-memoria
+    file: docs/tasks/001-modelo-feedback.md
+  TASK-002:
+    issue: EST-8
+    issueId: 4207a00a-0ff7-4d75-ac41-527ef6aa6b4b
+    url: https://linear.app/estacion8-e22/issue/EST-8/fbk-01-post-apifeedback
+    file: docs/tasks/002-post-api-feedback.md
+  TASK-003:
+    issue: EST-9
+    issueId: 714f6813-343a-478f-bf68-dad31e8dffd5
+    url: https://linear.app/estacion8-e22/issue/EST-9/fbk-01-botones-y-motivo-en-cada-respuesta-del-chat
+    file: docs/tasks/003-ui-botones-motivo.md
+  TASK-004:
+    issue: EST-10
+    issueId: 63c69bec-bab5-4fbd-ba1a-0e937ea23acf
+    url: https://linear.app/estacion8-e22/issue/EST-10/fbk-01-computestats-y-get-apifeedbackstats
+    file: docs/tasks/004-stats-api.md
+  TASK-005:
+    issue: EST-11
+    issueId: 881d9664-a551-4fc7-b62d-2253b6f0227b
+    url: https://linear.app/estacion8-e22/issue/EST-11/fbk-01-panel-adminfeedback
+    file: docs/tasks/005-panel-admin.md
+  TASK-006:
+    issue: EST-12
+    issueId: 3bf30d58-c368-49bc-98e9-4add14f85eea
+    url: https://linear.app/estacion8-e22/issue/EST-12/fbk-01-flujo-completo-e2e-bdd-calificar-aparece-en-el-panel
+    file: docs/tasks/006-flujo-e2e-bdd.md

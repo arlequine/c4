@@ -32,6 +32,12 @@ export default defineConfig({
       testMatch: /tests\/e2e\/.*/,
     },
     {
+      // FBK-01: tests de API. El store de feedback vive en memoria → sin paralelismo (skill qa-testing §5).
+      name: 'api',
+      testMatch: /tests\/api\/.*/,
+      fullyParallel: false,
+    },
+    {
       name: 'bdd',
       use: { ...devices['Desktop Chrome'] },
       testDir: bddDir,
