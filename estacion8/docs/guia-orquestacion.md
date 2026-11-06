@@ -29,40 +29,28 @@ git switch estacion8/orquestacion-opensymphony
 - Hace *polling* de un proyecto de Linear, crea un workspace aislado por issue (`<workspace_root>/<ID-issue>/`, con hooks como `after_create` para clonar el repo) y lanza un agente por issue.
 - Sitio oficial: https://opensymphony.dev/es/ (repo `kumanday/OpenSymphony`, docs en `docs/`).
 - **Harnesses soportados: OpenHands (por defecto), Codex app-server y, desde la 3.0.0, perfiles ACP v1** (Agent Client Protocol, un agente local por stdio). La documentación **no menciona Claude Code**; el único perfil ACP de ejemplo es `cursor`.
-- Ruta posible para Claude Code (no documentada por OpenSymphony, sin probar): el adaptador de terceros `@agentclientprotocol/claude-agent-acp` (binario `claude-agent-acp`, corre sobre el Claude Agent SDK) como perfil ACP genérico:
-  ```yaml
-  routing:
-    harness: acp
-    harness_profile: claude
-  acp:
-    profiles:
-      claude:
-        command: /ruta/absoluta/a/claude-agent-acp   # ruta absoluta, args literales
-        args: []
-        transport: stdio
-        protocol_versions: [1]
-        permissions:
-          mode: operator        # o allow_once para correr sin supervisión
-  ```
-  Por verificar: que el adaptador cargue `CLAUDE.md` y las skills de `.claude/skills/` (incluida `implementar-spec`) y cómo se autentica (login de Claude o `ANTHROPIC_API_KEY`).
-- Instalación según su README:
+- **Decisión (2026-11-06): usar el harness ACP con el adaptador `@agentclientprotocol/claude-agent-acp`** (binario `claude-agent-acp`, de terceros, corre sobre el Claude Agent SDK). Verificado en el sandbox:
+  - v0.101.0 responde el `initialize` de ACP v1 y anuncia `loadSession` y `resume`.
+  - Carga `settingSources: ["user", "project", "local"]` y skills, así que lee `CLAUDE.md` y `.claude/skills/`.
+  - Se autentica con tu login de Claude Code (`~/.claude`) o con `ANTHROPIC_API_KEY`. OpenSymphony le pasa el entorno del proceso (menos las credenciales de checkout).
+- Instalación (3.0.0 pide **rustc ≥ 1.97.1**; la compilación tarda **~30 min**, hazla antes del ensayo):
   ```bash
-  cargo install opensymphony           # requiere Rust estable
-  opensymphony install openhands       # harness por defecto (Python 3.13 + uv + LLM_API_KEY)
-  export LINEAR_API_KEY="lin_api_..."
-  cd <repo> && opensymphony init       # genera WORKFLOW.md, config.yaml y .agents/skills/linear/
-  opensymphony doctor
-  opensymphony run
+  rustup update stable && rustc --version     # ≥ 1.97.1
+  cargo install opensymphony --locked         # ~30 min
+  npm i -g @agentclientprotocol/claude-agent-acp@0.101.0
   ```
-- Conexión con Linear: **API key** (`LINEAR_API_KEY`), solo GraphQL. El orquestador lee Linear; el agente escribe en Linear con la skill local `.agents/skills/linear/` (script `linear_graphql.py`). No usa el MCP de Linear. En `WORKFLOW.md`: `tracker.kind: linear` y `tracker.project_slug` (el `slugId` del proyecto).
-- Workspaces: carpetas deterministas por issue. La doc **no dice que sean git worktrees**; eso se arma en el hook `after_create`.
+- Conexión con Linear: **API key** (`LINEAR_API_KEY`), solo GraphQL. El orquestador lee Linear; el agente escribe con la skill `linear` de la plantilla oficial (`linear_graphql.py`, Python sin dependencias). No usa el MCP de Linear.
+- **Config central (3.0.0):** con ACP la config es un archivo central `schema_version: 1` (`opensymphony run --config <ruta>`). La forma fácil de obtenerla: `opensymphony migrate apply` sobre un `config.yaml` + `WORKFLOW.md` legacy, y luego editar `routing.harness`/`acp.profiles`. El `WORKFLOW.md` queda solo con el prompt y una línea exacta `Target branch: \`<rama>\`` (sin ella, `migrate` falla). `migrate` se niega a convertir un hook `after_create` con `git clone`.
+- Worktrees: la config central tiene `integration.use_shared_git_worktrees`. Lo dejé en `true`; la prueba de humo confirma si cada issue queda en un worktree.
+- **La plantilla oficial (`kumanday/OpenSymphony-template`) trae `create-implementation-plan` (idéntica a la de `estacion6/skills/`) y `convert-tasks-to-linear`** con `validate`, `dry-run` y `apply`. No hay que crear esta última desde cero.
+- La plantilla usa estados `Human Review`, `Merging` y `Rework` y una skill `land` que hace merge. Para el ejercicio usamos los estados por defecto de Linear (`Todo`, `In Progress`, `In Review`, `Done`) y **no** copiamos `land` (regla: ningún agente hace merge).
 
 ### 0.3 ¿Respeta las relaciones "blocked by"?
 
-- La especificación Symphony (fuente #1 de OpenSymphony) dice que un issue en estado **Todo** solo es elegible para despacho si **no tiene bloqueadores en estado no terminal**.
-- OpenSymphony deriva `blocked_by` de las `inverseRelations` de Linear con tipo `blocks`, y las muestra en su task graph.
-- **Matiz:** la regla solo aplica a issues en *Todo*. Un issue que alguien mueva a *In Progress* a mano se despacha aunque esté bloqueado. Y la doc de OpenSymphony que revisé no afirma explícitamente que su scheduler aplica la regla; lo hereda de la spec.
-- Consecuencia para "olas": si cada issue de la Ola 2 está *blocked by* los de la Ola 1 y "Done" es estado terminal, la Ola 2 arranca sola cuando la Ola 1 termina.
+- **Sí.** Verificado en el código de la 3.0.0 (`crates/opensymphony-orchestrator/src/selection.rs`): `should_dispatch_issue` descarta cualquier issue con un bloqueador en estado no terminal, y el scheduler filtra con esa función antes de despachar. En OpenSymphony aplica a cualquier estado activo, no solo a *Todo* como en la spec Symphony.
+- `blocked_by` sale de las `inverseRelations` de Linear con tipo `blocks`.
+- También espera a los sub-issues: un issue padre no se despacha mientras tenga hijos sin terminar.
+- Consecuencia para "olas": si cada issue de la Ola 2 está *blocked by* los de la Ola 1 y `Done` está en `terminal_states`, la Ola 2 arranca sola cuando la Ola 1 llega a `Done`.
 
 ### 0.4 MCP de Linear con escritura (en tu WSL)
 
@@ -93,14 +81,80 @@ cd .. && npx bddgen && npx playwright test --project=chromium --project=bdd
 **Plan B:** si falla por puerto ocupado, `lsof -i :3000` y matar el proceso. Si Chromium no baja, apunta a un Chrome del sistema con `launchOptions.executablePath` en una config local no versionada (así se corrió en el ensayo).
 **Ojo:** `npm test` en la raíz de `qa-e2e` corre **Playwright con todos los proyectos** (incluido Firefox, que falla en WSL); no corre Vitest. Vitest está en `demo-app` (`npm run test:unit`).
 
+### 0.6 Prueba de humo: OpenSymphony + ACP + Claude (en tu WSL)
+
+Objetivo: probar con un caso mínimo, antes de la Fase 1, las cinco cosas que nadie documenta juntas:
+- (a) OpenSymphony despacha a Claude por ACP;
+- (b) el agente ve las skills de `.claude/skills/`;
+- (c) el agente escribe en Linear;
+- (d) se respeta "blocked by";
+- (e) cada issue queda en su propio workspace o worktree.
+
+Todo pasa en un repo aislado (`~/os-smoke`) y en un proyecto de Linear desechable, sin tocar c4.
+
+**0.6.1 Preparar Linear (a mano, 3 min)**
+1. Linear → Settings → Security & access → Personal API keys → crea una (`lin_api_...`).
+2. Crea el proyecto **"30X · E8 Smoke"** en tu equipo. Copia el **slugId**, la parte final de la URL del proyecto (`.../project/30x-e8-smoke-<slugId>/...`). Plan B: pásale a `migrate`/`doctor` el slug completo.
+3. Crea dos issues en ese proyecto, ambos en `Todo`:
+   - **SMOKE-A** "Smoke A: crear archivo".
+   - **SMOKE-B** "Smoke B: crear archivo", con *Blocked by* → SMOKE-A.
+
+**0.6.2 Instalar y preparar**
+```bash
+rustup update stable && cargo install opensymphony --locked          # ~30 min
+npm i -g @agentclientprotocol/claude-agent-acp@0.101.0
+command -v claude-agent-acp                                            # el binario existe
+export LINEAR_API_KEY=lin_api_...
+~/c4/estacion8/orquestacion/smoke/setup-smoke.sh <slugId>
+```
+**Resultado esperado:** `doctor` termina sin `[FAIL]` (dos `[WARN]` normales: workspace compartido y modo trusted-machine).
+**Cómo verificar:** existen `~/os-smoke/.claude/skills/linear/` y `~/.opensymphony/e8-smoke.yaml`.
+**Plan B:** si `doctor` falla en `config`, compara tu YAML con `config.template.yaml`. El parser central es estricto y rechaza claves desconocidas.
+
+**0.6.3 Lanzar**
+```bash
+cd ~/os-smoke && opensymphony run --config ~/.opensymphony/e8-smoke.yaml
+# en otra terminal, para ver el estado:
+opensymphony tui     # o: curl -s 127.0.0.1:2468/api/v1/snapshot | jq
+```
+**Resultado esperado en ~2–5 min:**
+- SMOKE-A pasa a `In Progress` y luego a `In Review`, y tiene **un comentario** con `pwd`, la rama `smoke/SMOKE-A`, `git worktree list`, `git log` y la lista de skills (debe incluir `linear`).
+- **SMOKE-B sigue en `Todo` sin despacharse** (bloqueado).
+
+**Luego:** mueve SMOKE-A a `Done` a mano. En el siguiente poll (~5 s) SMOKE-B se despacha y termina igual.
+
+**Cómo verificar cada punto:**
+| | Señal |
+|---|---|
+| (a) ACP + Claude | El comentario existe y dice el modelo |
+| (b) Skills | La lista del comentario incluye `linear` |
+| (c) Linear | Los cambios de estado y el comentario los hizo el agente |
+| (d) Blocked by | SMOKE-B no arranca hasta que SMOKE-A está en `Done` |
+| (e) Aislamiento | El `pwd` está bajo `~/.opensymphony/workspaces/e8-smoke/` y `git worktree list` muestra el checkout |
+
+**Plan B por síntoma:**
+- El agente no arranca y la TUI muestra un error de auth → corre `claude` una vez en WSL para iniciar sesión, o exporta `ANTHROPIC_API_KEY` y agrégala a `env_refs` del perfil.
+- El agente se queda esperando un permiso → cambia `permissions.mode` a `operator` y respóndelo desde la TUI. Si así funciona, el problema es `allow_once`.
+- No aparece `linear` en las skills → el adaptador no cargó `.claude/skills/`. Prueba con `CLAUDE_CONFIG_DIR` apuntando a tu `~/.claude` y avísame.
+- El workspace sale vacío o sin git → pon `hooks.after_create: git clone --depth 1 file://$HOME/os-smoke .` en la config central.
+- SMOKE-B arranca antes de tiempo → revisa que la relación sea *Blocked by* (no *Related*) y que `Done` esté en `terminal_states`.
+
+**Limpieza:** `Ctrl+C` en `run`, `rm -rf ~/os-smoke ~/.opensymphony/workspaces/e8-smoke ~/.opensymphony/state/e8-smoke`. Archiva el proyecto Smoke en Linear cuando quieras.
+
 ### Registro Fase 0 (ensayo 2026-11-06)
 
 Funcionó:
 - Vitest 15/15 y Playwright chromium + bdd 8/8 en un clon limpio de `rework/estacion8` @ 365e131.
 - `claude mcp add --transport http linear https://mcp.linear.app/mcp` se registra bien (la conexión real requiere tu OAuth).
+- `cargo install opensymphony --locked` 3.0.0 compila (28 min) e instala.
+- `claude-agent-acp` 0.101.0 responde el handshake ACP v1.
+- `setup-smoke.sh` deja `doctor` sin fallas con el perfil ACP `claude`.
+- `opensymphony run --dry-run` llega hasta la consulta a Linear. Desde el sandbox no hay red a `api.linear.app`, así que el despacho real se prueba en tu WSL (0.6).
 
 Falló o difiere de lo planeado:
-- **OpenSymphony no soporta Claude Code de forma nativa** (OpenHands, Codex o perfiles ACP). La vía ACP + `claude-agent-acp` es posible pero no está documentada ni probada. Pendiente de decisión.
+- **OpenSymphony no soporta Claude Code de forma nativa.** Decisión: perfil ACP + `claude-agent-acp`, pendiente de la prueba de humo 0.6.
+- `opensymphony init` necesita `api.github.com` para bajar la plantilla. En el sandbox estaba bloqueado y se clonó la plantilla con git. En tu WSL `init` debería funcionar normal.
+- La plantilla oficial asume estados `Human Review`/`Merging`/`Rework` y una skill `land` que hace merge. Hay que adaptarla.
 - La ruta real es `estacion8/repos/qa-e2e`, no `estacion8/qa-e2e`.
 - `npm test` no es Vitest (ver 0.5).
 - `demo-app` **no tiene zod** como dependencia; FBK-01 tendría que agregarlo.
