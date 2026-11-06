@@ -417,3 +417,48 @@ npx bddgen && npx playwright test --project=chromium --project=bdd --project=api
   - `feedback.spec.ts` usa `mode: 'default'` y no `serial`: con `serial`, al primer fallo se saltaban 10 tests.
   - Tags `@TASK-00N` en cada test. El verificador de cada issue usa `--grep @TASK-00N` y la regresión `--grep-invert "@TASK-"`.
 - **Para el verificador (Fase 7):** el comando del prompt (`--project=chromium --project=bdd`) no corre los tests de API. Hay que agregar `--project=api` o usar el comando del *Test Plan* de cada issue.
+
+---
+
+## Fase 6 · Orquestar el desarrollo con OpenSymphony
+
+### 6.1 Plantilla de estándares (hecho)
+`estacion8/repos/qa-e2e/.claude/skills/implementar-spec/plantilla-estandares.md`, junto a una copia de `implementar-spec`. Se armó con las convenciones reales de `qa-e2e` y cita su fuente en cada regla. Hallazgos:
+- no hay linter ni formateador;
+- `npm run dev -- -p <puerto>` sobrescribe el 3000 (verificado con 3011);
+- `npm test` de la raíz no es "todas las pruebas".
+
+La copia de `estacion7/skills/implementar-spec/` sigue **sin** plantilla.
+
+### 6.2 Kit `estacion8/orquestacion/fbk01/`
+| Archivo | Qué hace |
+|---|---|
+| `WORKFLOW.md` | Prompt del **agente de desarrollo**. Puerto `3100 + nº del issue`, rama `fbk-01/<ID>`, sigue `implementar-spec` con la aprobación ya dada, no edita pruebas, hace push solo de su rama, comenta resultados y deja el issue en **In Review**. Si se bloquea, lo deja en **Backlog**. |
+| `config.template.yaml` | La config de la prueba de humo (que ya funcionó) ajustada a c4. `after_create` clona `~/c4`, apunta `origin` a GitHub, toma la **última** versión de la rama del ejercicio y corre `npm ci`. Hasta 3 agentes en paralelo. |
+| `setup-fbk01.sh` | Comprueba los binarios, `~/c4` y las credenciales de git, genera `~/.opensymphony/e8-fbk01.yaml` y corre `doctor`. |
+
+**Portón entre olas (decidido):** el agente deja el issue en **In Review**. El verificador (Fase 7) corre las pruebas y abre el PR. **Alfredo hace merge del PR a `estacion8/orquestacion-opensymphony`** (nunca a `main`) y mueve el issue a **Done**. Como `after_create` toma la rama al crear cada workspace, la ola siguiente ya arranca con ese código.
+
+### 6.3 Correr la Ola 1
+```bash
+cd ~/c4 && git switch estacion8/orquestacion-opensymphony && git pull
+gh auth status || gh auth login && gh auth setup-git        # los agentes hacen push de su rama
+export LINEAR_API_KEY=lin_api_...
+estacion8/orquestacion/fbk01/setup-fbk01.sh <slugId de "30X · E8 Orquestación">
+opensymphony run --config ~/.opensymphony/e8-fbk01.yaml
+# en otra terminal: opensymphony tui
+```
+**Esperado:**
+- Solo se despacha **TASK-001**; las demás aparecen como *blocked by*.
+- En unos minutos, el issue pasa a **In Progress** y luego a **In Review**, con un comentario (rama `fbk-01/EST-xx`, commit, `git diff --stat` y pruebas `@TASK-001` en verde).
+
+**Verificar:**
+- `git ls-remote origin 'refs/heads/fbk-01/*'` muestra la rama.
+- En el workspace, `cd estacion8/repos/qa-e2e && npm --prefix demo-app run test:unit -- __tests__/feedback.test.ts` da verde.
+
+**Plan B:**
+- Si `doctor` rechaza `instructions.path` por estar en una subcarpeta, copia el WORKFLOW a la raíz (`cp estacion8/orquestacion/fbk01/WORKFLOW.md WORKFLOW.md`) y cambia `path: WORKFLOW.md` en el YAML.
+- Si el push falla por credenciales, corre `gh auth setup-git` y vuelve a lanzar la tarea moviendo el issue a Todo.
+- Si el agente se detiene a pedir aprobación, revisa que el prompt incluya la línea "La aprobación de su Fase 4 ya está dada".
+- Si el issue vuelve a In Progress una y otra vez, el agente no lo está moviendo a In Review: revisa sus comentarios y el log de la TUI.
+- Si el costo preocupa, fija `session.model` en el perfil ACP, con el ID que muestre la TUI.
