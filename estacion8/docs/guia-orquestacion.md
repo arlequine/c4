@@ -192,3 +192,19 @@ rm -rf ~/.opensymphony/workspaces/e8-smoke ~/.opensymphony/state/e8-smoke
 cd ~/os-smoke && opensymphony run --config ~/.opensymphony/e8-smoke.yaml
 ```
 Hay que borrar el estado porque el workspace fallido se conservó (`retain_failed: true`) y el estado guarda el intento. Si no lo borras, el issue puede quedarse estacionado.
+
+### Registro Fase 0 · ensayo 3 en WSL (2026-11-06, 15:27)
+
+Funcionó. Comentario del agente en EST-5 (SMOKE-A):
+- (a) ✅ ACP + Claude. El modelo reportado es `claude-opus-5-5`, el default del login de Claude Code.
+- (b) ✅ Ve la skill `linear` del repo. **También ve las skills de usuario de `~/.claude`** (`evaluate-spec`, `create-implementation-plan`…), porque el adaptador carga `settingSources: user`.
+- (c) ✅ Comentó en Linear con la skill GraphQL.
+- (e) ✅ Workspace `~/.opensymphony/workspaces/e8-smoke/EST-5`, rama `smoke/EST-5`, commit propio. Es un clon (`git worktree list` muestra solo ese checkout).
+- (d) ⏳ Pendiente: mover EST-5 a Done y ver que SMOKE-B se despache.
+
+Falló o difiere:
+- El equipo EST **no tiene estado `In Review`** (solo Todo, Backlog, In Progress, Done, Canceled, Duplicate). Se crea en Linear → Settings → Teams → EST → Workflow, con tipo *Started*. Sin ese estado, el issue se queda en `In Progress`, que es activo, y se puede volver a despachar hasta llegar a `max_turns`.
+
+Decisiones para las Fases 5 y 6:
+- Las skills del ejercicio van en `.claude/skills/` del repo y el prompt de `WORKFLOW.md` las cita por ruta. Así no dependen de lo que cada estudiante tenga en `~/.claude`.
+- Hay que fijar el modelo de los agentes con `session.model` en el perfil ACP, para controlar el costo con 3 agentes en paralelo.
