@@ -37,11 +37,12 @@ Reintento #{{ attempt }}: continúa desde el estado actual del workspace y lee l
    - Al terminar, detén tu servidor (`kill` del proceso que levantaste).
 6. Commit: `feat(FBK-01): <qué> [RF-xx, CA-xx] ({{ issue.identifier }})`. Push **solo** de tu rama: `git push -u origin fbk-01/{{ issue.identifier }}`.
 7. Comenta en el issue (`comment_create.graphql`) con: rama, hash del commit, archivos tocados (`git diff --stat origin/estacion8/orquestacion-opensymphony`), comandos corridos y resultado (passed/failed), y los CA cubiertos.
-8. Mueve el issue a **In Review** y termina.
+8. Mueve el issue a **In Review**. Hazlo en una llamada aparte, después del comentario, y que sea **tu última acción**: no escribas resumen ni texto final después. En cuanto el issue deja `Todo`/`In Progress`, el orquestador corta la sesión, y lo que siga escribiendo deja el run como `failed`. El resumen va en el comentario del paso 7.
 
 ## Si no llegas a verde
 - Hasta 2 intentos de corrección. Si sigue en rojo: haz commit y push de lo que tengas, comenta `BLOQUEADO` con el error real y tu diagnóstico, y mueve el issue a **Backlog**, para que no se vuelva a despachar solo.
 - Si una prueba parece incorrecta, no la toques: explícalo en el comentario y mueve el issue a **Backlog**.
+- Igual que en el paso 8: mover el issue a **Backlog** es tu última acción, sin texto después.
 
 ## Límites (no negociables)
 - Sin merge, rebase ni `push --force`. No toques `main` ni `estacion8/orquestacion-opensymphony`. **No abras el PR**: lo hace el verificador.
