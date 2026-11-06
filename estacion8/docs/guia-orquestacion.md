@@ -27,7 +27,24 @@ git switch estacion8/orquestacion-opensymphony
 
 - OpenSymphony es una implementación en Rust de la especificación **OpenAI Symphony** (`SPEC.md`). Repo: `github.com/kumanday/OpenSymphony`; paquete `opensymphony` en crates.io; docs en docs.rs (versión más reciente vista: 3.0.0).
 - Hace *polling* de un proyecto de Linear, crea un workspace aislado por issue (`<workspace_root>/<ID-issue>/`, con hooks como `after_create` para clonar el repo) y lanza un agente por issue.
-- **Harnesses soportados: OpenHands (por defecto) y Codex app-server.** La documentación **no menciona Claude Code** en ninguna versión revisada (1.x a 3.0.0).
+- Sitio oficial: https://opensymphony.dev/es/ (repo `kumanday/OpenSymphony`, docs en `docs/`).
+- **Harnesses soportados: OpenHands (por defecto), Codex app-server y, desde la 3.0.0, perfiles ACP v1** (Agent Client Protocol, un agente local por stdio). La documentación **no menciona Claude Code**; el único perfil ACP de ejemplo es `cursor`.
+- Ruta posible para Claude Code (no documentada por OpenSymphony, sin probar): el adaptador de terceros `@agentclientprotocol/claude-agent-acp` (binario `claude-agent-acp`, corre sobre el Claude Agent SDK) como perfil ACP genérico:
+  ```yaml
+  routing:
+    harness: acp
+    harness_profile: claude
+  acp:
+    profiles:
+      claude:
+        command: /ruta/absoluta/a/claude-agent-acp   # ruta absoluta, args literales
+        args: []
+        transport: stdio
+        protocol_versions: [1]
+        permissions:
+          mode: operator        # o allow_once para correr sin supervisión
+  ```
+  Por verificar: que el adaptador cargue `CLAUDE.md` y las skills de `.claude/skills/` (incluida `implementar-spec`) y cómo se autentica (login de Claude o `ANTHROPIC_API_KEY`).
 - Instalación según su README:
   ```bash
   cargo install opensymphony           # requiere Rust estable
@@ -83,7 +100,7 @@ Funcionó:
 - `claude mcp add --transport http linear https://mcp.linear.app/mcp` se registra bien (la conexión real requiere tu OAuth).
 
 Falló o difiere de lo planeado:
-- **OpenSymphony no soporta Claude Code como harness** (solo OpenHands y Codex). Pendiente de decisión.
+- **OpenSymphony no soporta Claude Code de forma nativa** (OpenHands, Codex o perfiles ACP). La vía ACP + `claude-agent-acp` es posible pero no está documentada ni probada. Pendiente de decisión.
 - La ruta real es `estacion8/repos/qa-e2e`, no `estacion8/qa-e2e`.
 - `npm test` no es Vitest (ver 0.5).
 - `demo-app` **no tiene zod** como dependencia; FBK-01 tendría que agregarlo.
