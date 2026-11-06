@@ -121,7 +121,8 @@ opensymphony tui     # o: curl -s 127.0.0.1:2468/api/v1/snapshot | jq
 - SMOKE-A pasa a `In Progress` y luego a `In Review`, y tiene **un comentario** con `pwd`, la rama `smoke/SMOKE-A`, `git worktree list`, `git log` y la lista de skills (debe incluir `linear`).
 - **SMOKE-B sigue en `Todo` sin despacharse** (bloqueado).
 
-**Luego:** mueve SMOKE-A a `Done` a mano. En el siguiente poll (~5 s) SMOKE-B se despacha y termina igual.
+**Luego:** mueve SMOKE-A a `Done` a mano y **espera hasta ~1–2 min**. El poll de 5 s solo refresca lo que ya está corriendo. La búsqueda de issues nuevos para despachar (con `blocked_by` fresco) corre cada **60 s** (`DISPATCH_DISCOVERY_INTERVAL_MS` en `scheduler.rs`), y la foto completa del tracker cada hora o al reiniciar. Pasado ese tiempo, SMOKE-B se despacha y termina igual.
+**Plan B:** si a los 2 min no se despacha, detén `run` con Ctrl+C y vuelve a lanzarlo. Al arrancar hace una foto completa y despacha a B de inmediato.
 
 **Cómo verificar cada punto:**
 | | Señal |
@@ -208,3 +209,11 @@ Falló o difiere:
 Decisiones para las Fases 5 y 6:
 - Las skills del ejercicio van en `.claude/skills/` del repo y el prompt de `WORKFLOW.md` las cita por ruta. Así no dependen de lo que cada estudiante tenga en `~/.claude`.
 - Hay que fijar el modelo de los agentes con `session.model` en el perfil ACP, para controlar el costo con 3 agentes en paralelo.
+
+### Registro Fase 0 · ensayo 4 en WSL (2026-11-06, 15:41)
+
+- (d) ✅ **"Blocked by" respetado:** SMOKE-B no se despachó mientras SMOKE-A estaba abierto.
+- ⚠️ Después de mover SMOKE-A a Done, B no arrancó solo dentro del tiempo que esperamos. Al reiniciar `opensymphony run` se despachó y terminó en `In Review`.
+- Explicación del código: el desbloqueo no es inmediato. El descubrimiento de candidatos corre cada 60 s y la foto completa cada hora o al reiniciar. **Para clase:** avisar que las olas avanzan con hasta ~1 min de retraso, y tener a la mano el reinicio de `run` como plan B. Pendiente confirmar si a los 2 min arranca sin reiniciar.
+
+**Fase 0 cerrada:** (a)–(e) verificados. Ajustes pendientes para las Fases 4–6: estado `In Review` en el equipo, skills en `.claude/skills/` del repo y `session.model` en el perfil ACP.
