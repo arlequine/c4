@@ -41,7 +41,7 @@ git switch estacion8/orquestacion-opensymphony
   ```
 - Conexión con Linear: **API key** (`LINEAR_API_KEY`), solo GraphQL. El orquestador lee Linear; el agente escribe con la skill `linear` de la plantilla oficial (`linear_graphql.py`, Python sin dependencias). No usa el MCP de Linear.
 - **Config central (3.0.0):** con ACP la config es un archivo central `schema_version: 1` (`opensymphony run --config <ruta>`). La forma fácil de obtenerla: `opensymphony migrate apply` sobre un `config.yaml` + `WORKFLOW.md` legacy, y luego editar `routing.harness`/`acp.profiles`. El `WORKFLOW.md` queda solo con el prompt y una línea exacta `Target branch: \`<rama>\`` (sin ella, `migrate` falla). `migrate` se niega a convertir un hook `after_create` con `git clone`.
-- Worktrees: la config central tiene `integration.use_shared_git_worktrees`. Lo dejé en `true`; la prueba de humo confirma si cada issue queda en un worktree.
+- Worktrees: **en `legacy_single` la 3.0.0 ignora `integration.use_shared_git_worktrees`** (`config.rs`: se lee y se descarta). El workspace de cada issue es un directorio vacío y el código solo llega si `hooks.after_create` lo clona (`git clone <repo> .` corre antes de que exista `.opensymphony/`). Cada issue queda en un **clon propio**, no en un worktree. Para el ejercicio da igual: lo que importa es el aislamiento.
 - **La plantilla oficial (`kumanday/OpenSymphony-template`) trae `create-implementation-plan` (idéntica a la de `estacion6/skills/`) y `convert-tasks-to-linear`** con `validate`, `dry-run` y `apply`. No hay que crear esta última desde cero.
 - La plantilla usa estados `Human Review`, `Merging` y `Rework` y una skill `land` que hace merge. Para el ejercicio usamos los estados por defecto de Linear (`Todo`, `In Progress`, `In Review`, `Done`) y **no** copiamos `land` (regla: ningún agente hace merge).
 
@@ -136,7 +136,8 @@ opensymphony tui     # o: curl -s 127.0.0.1:2468/api/v1/snapshot | jq
 - El agente no arranca y la TUI muestra un error de auth → corre `claude` una vez en WSL para iniciar sesión, o exporta `ANTHROPIC_API_KEY` y agrégala a `env_refs` del perfil.
 - El agente se queda esperando un permiso → cambia `permissions.mode` a `operator` y respóndelo desde la TUI. Si así funciona, el problema es `allow_once`.
 - No aparece `linear` en las skills → el adaptador no cargó `.claude/skills/`. Prueba con `CLAUDE_CONFIG_DIR` apuntando a tu `~/.claude` y avísame.
-- El workspace sale vacío o sin git → pon `hooks.after_create: git clone --depth 1 file://$HOME/os-smoke .` en la config central.
+- El workspace sale vacío o sin git (TUI: `runtime: failed`, `branch: unavailable`, `fatal: not a git repository`) → falta `hooks.after_create`. El kit ya lo trae desde el ensayo 2. Si tu YAML es viejo, vuelve a correr `setup-smoke.sh` y limpia el estado (ver Registro, ensayo 2).
+- `agent=down (not_selected)` en la barra de arriba **es normal con ACP**: es el indicador del servidor de OpenHands, que no se usa.
 - SMOKE-B arranca antes de tiempo → revisa que la relación sea *Blocked by* (no *Related*) y que `Done` esté en `terminal_states`.
 
 **Limpieza:** `Ctrl+C` en `run`, `rm -rf ~/os-smoke ~/.opensymphony/workspaces/e8-smoke ~/.opensymphony/state/e8-smoke`. Archiva el proyecto Smoke en Linear cuando quieras.
@@ -175,3 +176,19 @@ Falló o difiere de lo planeado:
 - `npm test` no es Vitest (ver 0.5).
 - `demo-app` **no tiene zod** como dependencia; FBK-01 tendría que agregarlo.
 - No hay `webServer` en `playwright.config.ts`: la app se levanta a mano en el 3000.
+
+### Registro Fase 0 · ensayo 2 en WSL (2026-11-06, 15:21)
+
+Falló:
+- La TUI mostró **EST-5 SMOKE-A `[failed / Todo]`**, con `branch: unavailable`, `retries: 0`, `fatal: not a git…` y `agent=down (not_selected)`. Nunca se lanzó la sesión ACP.
+- **Causa:** la config tenía `hooks.after_create: null`, confiando en `use_shared_git_worktrees: true`. La 3.0.0 ignora esa bandera en `legacy_single`, así que el workspace quedó vacío y el `before_run` (`git status`) falló.
+- **Corrección:** `config.template.yaml` ahora trae `after_create: git clone --quiet file://__HOME__/os-smoke .` y `use_shared_git_worktrees: false`.
+
+Para reintentar (con `run` detenido):
+```bash
+cd ~/c4 && git pull
+~/c4/estacion8/orquestacion/smoke/setup-smoke.sh <slugId>          # regenera el YAML
+rm -rf ~/.opensymphony/workspaces/e8-smoke ~/.opensymphony/state/e8-smoke
+cd ~/os-smoke && opensymphony run --config ~/.opensymphony/e8-smoke.yaml
+```
+Hay que borrar el estado porque el workspace fallido se conservó (`retain_failed: true`) y el estado guarda el intento. Si no lo borras, el issue puede quedarse estacionado.

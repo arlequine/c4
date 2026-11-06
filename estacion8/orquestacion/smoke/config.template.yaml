@@ -2,7 +2,8 @@
 # Generada con `opensymphony migrate apply` y ajustada a mano:
 #   - routing.harness: acp + perfil `claude` (adaptador claude-agent-acp)
 #   - estados de Linear por defecto (sin Human Review / Merging / Rework)
-#   - integration.use_shared_git_worktrees: true
+#   - hooks.after_create clona el repo en cada workspace (legacy_single NO usa worktrees;
+#     use_shared_git_worktrees se ignora en 3.0.0 y sin este hook el workspace queda vacío)
 # setup-smoke.sh reemplaza __HOME__, __SLUG__ y __ACP_BIN__.
 schema_version: 1
 acp:
@@ -92,7 +93,8 @@ scheduler:
   stall_timeout_ms: 300000
   poll_interval_ms: 5000
 hooks:
-  after_create: null
+  after_create: |
+    git clone --quiet file://__HOME__/os-smoke .
   before_run: |
     git status --short
   after_run: |
@@ -102,7 +104,7 @@ hooks:
   timeout_ms: 60000
 integration:
   policy: builtin:legacy-single
-  use_shared_git_worktrees: true
+  use_shared_git_worktrees: false
 memory:
   catalog_root: ~/.opensymphony/state/e8-smoke/memory
   auto_capture: false
