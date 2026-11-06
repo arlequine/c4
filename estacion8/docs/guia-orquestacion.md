@@ -217,3 +217,45 @@ Decisiones para las Fases 5 y 6:
 - Explicación del código: el desbloqueo no es inmediato. El descubrimiento de candidatos corre cada 60 s y la foto completa cada hora o al reiniciar. **Para clase:** avisar que las olas avanzan con hasta ~1 min de retraso, y tener a la mano el reinicio de `run` como plan B. Pendiente confirmar si a los 2 min arranca sin reiniciar.
 
 **Fase 0 cerrada:** (a)–(e) verificados. Ajustes pendientes para las Fases 4–6: estado `In Review` en el equipo, skills en `.claude/skills/` del repo y `session.model` en el perfil ACP.
+
+---
+
+## Fase 1 · Spec FBK-01
+
+### 1.1 Revisar que el código permita la feature
+
+**Prompt (Claude Code, en `estacion8/repos/qa-e2e`):**
+> Antes de escribir la spec FBK-01, revisa `demo-app/app/page.tsx`, `demo-app/app/api/chat/route.ts` y `demo-app/lib/agent.ts`. Dime dónde se renderiza cada mensaje del bot, cómo están las rutas de API y qué le falta al código para calificar cada respuesta con 👍/👎. No escribas código.
+
+**Esperado:**
+- Los mensajes del bot se renderizan en `page.tsx` con `data-testid="agent-message"` y `key={i}`, **sin ID**.
+- Solo existe `POST /api/chat`, que devuelve `{ response }`.
+- Hay que agregar un `messageId` por respuesta y `zod`, que no está en `demo-app/package.json`.
+
+**Verificar:** `grep -n "agent-message\|key=" demo-app/app/page.tsx` y `grep zod demo-app/package.json` (sin resultados).
+**Plan B:** si la estructura cambió, revisa `git log -3 -- demo-app/`.
+
+### 1.2 Escribir la spec v1 (incompleta a propósito)
+
+**Archivo:** `estacion8/repos/qa-e2e/docs/specs/FBK-01.md`. Va junto al proyecto, como `qa-crew/specs/`.
+
+**Prompt:**
+> Escribe `docs/specs/FBK-01.md` con 9 secciones (1 Problema y usuario, 2 Objetivo y éxito, 3 Alcance / fuera de alcance, 4 RF, 5 CA, 6 Diseño y contratos, 7 Plan de pruebas, 8 Supuestos S y Preguntas P, 9 Riesgos R) para: 👍/👎 por respuesta del bot, una vez por mensaje con cambio de voto, motivo opcional ≤ 200 con 👎, `POST /api/feedback` con zod y store en memoria, `GET /api/feedback/stats` (totales, % satisfacción, últimos 5 motivos) y `/admin/feedback`. **Deja a propósito dos vacíos:** el CA del panel sin nada medible y sin decir qué pasa si el usuario vota dos veces el mismo mensaje.
+
+**Esperado:** 6 RF, 13 CA y contratos de los dos endpoints. Los vacíos que se plantaron:
+- **CA-12** (panel): "muestra la información de forma clara y fácil de leer". No es observable: no dice qué textos ni qué `data-testid`.
+- **Doble voto:** RF-01 dice "una sola vez" y también "puede cambiar su voto", pero no dice qué hace `POST /api/feedback` con un segundo voto del mismo `messageId` (¿reemplaza?, ¿409?) ni cómo cuenta en las stats. No está en las preguntas abiertas: queda escondido.
+- **Bonus no planeado:** CA-09 usa conteos absolutos y R-01 dice "comparar diferencias". El evaluador debería marcarlo en coherencia.
+
+**Verificar:** `grep -c "^| CA-" docs/specs/FBK-01.md` → `13`.
+
+**Plan B:** si el agente "arregla" los vacíos por iniciativa propia, pídele: "deja CA-12 y RF-01 tal como te los describí".
+
+### Registro Fase 1 (2026-11-06)
+
+Funcionó:
+- La estructura permite la feature con dos ajustes: `messageId` generado en el cliente (`crypto.randomUUID()`), sin cambiar el contrato de `/api/chat`, y `zod` como dependencia nueva.
+
+Difiere del prompt original:
+- **La plantilla de 9 secciones con IDs RF/CA no está en el repo.** Venía en `skills-workshop-e6.zip` (`create-prd`). La reconstruí con los IDs RF/CA/S/P/R del contexto. Si quieres la exacta, sube el zip.
+- **`evaluate-spec` del repo (`qa-crew/skills/evaluate-spec`) no usa 0–3 ni 18 puntos.** Califica 14 criterios en tres lentes (P1–P6, T1–T4, D1–D4) como Cumple/Parcial/Falta, y pone una nota A–D **por ola**. A y B pasan a planificación. La regla "críticos ≥ 2, ningún 0, ≥ 13/18" es de `review-prd` de la E6, que tampoco está en el repo. Hay que decidirlo antes de la Fase 2.
